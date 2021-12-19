@@ -1,9 +1,36 @@
 from rest_framework import serializers
-import json
-
 from core.models import Phone
 
+class PhoneBillInquirySerializer(serializers.ModelSerializer):
+    MobileNumber = serializers.CharField(max_length=100)
+    TraceNumber = serializers.CharField(max_length=100, required=False)
+    CurrentDate = serializers.CharField(max_length=100, required=False)
+    Amount = serializers.IntegerField(read_only=True, required=False)
+    paymentDate = serializers.CharField(max_length=100, required=False)
 
+    class Meta:
+        model = Phone
+        # fields = '__all__'
+        fields = ['MobileNumber','TraceNumber','CurrentDate','Amount','paymentDate',]
+
+    def to_representation(self, instance):
+        ret = super(PhoneBillInquirySerializer, self).to_representation(instance)
+
+        data = {
+            "Identity": {
+                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+            },
+            "Parameters": {
+                "MobileNumber": ret.get('MobileNumber')
+            }
+        }
+        return data
+
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------
 
 OPERATORS = [
     ('Irancell', 'Irancell'),
@@ -18,6 +45,7 @@ class MobileBillInquirySerializer(serializers.ModelSerializer):
         model = Phone
         fields = '__all__'
         # fields = []
+
 
 class RightelMobileBillInquirySerializer(serializers.ModelSerializer):
     Amount = serializers.IntegerField(read_only=True)
@@ -34,6 +62,18 @@ class RightelMobileBillInquirySerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = []
 
+    def to_representation(self, instance):
+        ret = super(RightelMobileBillInquirySerializer, self).to_representation(instance)
+
+        data = {
+            "Identity": {
+                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+            },
+            "Parameters": {
+                "MobileNumber": ret.get('MobileNumber')
+            }
+        }
+        return data
 
 class MtnMobileBillInquirySerializer(serializers.ModelSerializer):
     MobileNumber = serializers.CharField(max_length=100)
@@ -47,6 +87,18 @@ class MtnMobileBillInquirySerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = []
 
+    def to_representation(self, instance):
+        ret = super(MtnMobileBillInquirySerializer, self).to_representation(instance)
+
+        data = {
+            "Identity": {
+                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+            },
+            "Parameters": {
+                "MobileNumber": ret.get('MobileNumber')
+            }
+        }
+        return data
 
 class IrancelMobileBillInquirySerializer(serializers.ModelSerializer):
     MobileNumber = serializers.CharField(max_length=100)
@@ -84,6 +136,18 @@ class FixedLineBillInquirySerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = []
 
+    def to_representation(self, instance):
+        ret = super(FixedLineBillInquirySerializer, self).to_representation(instance)
+
+        data = {
+            "Identity": {
+                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+            },
+            "Parameters": {
+                "MobileNumber": ret.get('MobileNumber')
+            }
+        }
+        return data
 
 TYPELINES = [
     ('FixedLine', 'FixedLine'),
@@ -100,13 +164,21 @@ class BillInquirySerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = []
 
-    # def to_representation(self, instance):
-    #     data = {
-    #         "Identity": {
-    #             "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-    #         },
-    #         "Parameters": {
-    #             "MobileNumber": self.MobileNumber
-    #         }
-    #     }
-    #     return data
+    def to_representation(self, instance):
+        ret = super(BillInquirySerializer, self).to_representation(instance)
+
+        data = {
+            "Identity": {
+                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+            },
+            "Parameters": {
+                "MobileNumber": ret.get('MobileNumber')
+            }
+        }
+        return data
+
+class PhoneSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Phone
+        fields = '__all__'
