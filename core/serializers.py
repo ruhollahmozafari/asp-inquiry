@@ -1,4 +1,6 @@
 from rest_framework import serializers
+import json
+
 from core.models import Phone
 
 
@@ -18,8 +20,6 @@ class MobileBillInquirySerializer(serializers.ModelSerializer):
         # fields = []
 
 class RightelMobileBillInquirySerializer(serializers.ModelSerializer):
-    # mobile = Mobileserializer(many=True)
-    token = serializers.CharField(max_length=100)
     Amount = serializers.IntegerField(read_only=True)
     MobileNumber = serializers.CharField(max_length=100)
     PreviousDate = serializers.CharField(max_length=100)
@@ -36,8 +36,6 @@ class RightelMobileBillInquirySerializer(serializers.ModelSerializer):
 
 
 class MtnMobileBillInquirySerializer(serializers.ModelSerializer):
-    # mobile = Mobileserializer(many=True)
-    token = serializers.CharField(max_length=100)
     MobileNumber = serializers.CharField(max_length=100)
     Amount = serializers.IntegerField(read_only=True)
     ExtraInfo = serializers.CharField(max_length=100)
@@ -51,28 +49,29 @@ class MtnMobileBillInquirySerializer(serializers.ModelSerializer):
 
 
 class IrancelMobileBillInquirySerializer(serializers.ModelSerializer):
-    # mobile = Mobileserializer(many=True)
-    token = serializers.CharField(max_length=100)
     MobileNumber = serializers.CharField(max_length=100)
-    TraceNumber = serializers.CharField(max_length=100)
-    CurrentDate = serializers.CharField(max_length=100)
-    Amount = serializers.IntegerField(read_only=True)
-    paymentDate = serializers.CharField(max_length=100)
+    TraceNumber = serializers.CharField(max_length=100, required=False)
+    CurrentDate = serializers.CharField(max_length=100, required=False)
+    Amount = serializers.IntegerField(read_only=True, required=False)
+    paymentDate = serializers.CharField(max_length=100, required=False)
 
     class Meta:
         model = Phone
-        fields = '__all__'
-        # fields = []
+        # fields = '__all__'
+        fields = ['MobileNumber','TraceNumber','CurrentDate','Amount','paymentDate',]
 
-    def create(self, validated_data):
-        parameters = {
+    def to_representation(self, instance):
+        ret = super(IrancelMobileBillInquirySerializer, self).to_representation(instance)
+
+        data = {
             "Identity": {
                 "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
             },
             "Parameters": {
-                "MobileNumber": validated_data['MobileNumber']
+                "MobileNumber": ret.get('MobileNumber')
             }
         }
+        return data
 
 
 
@@ -101,3 +100,13 @@ class BillInquirySerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = []
 
+    # def to_representation(self, instance):
+    #     data = {
+    #         "Identity": {
+    #             "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+    #         },
+    #         "Parameters": {
+    #             "MobileNumber": self.MobileNumber
+    #         }
+    #     }
+    #     return data

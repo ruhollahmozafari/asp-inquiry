@@ -7,7 +7,7 @@ app_name = 'core'
 
 urlpatterns = [
 
-    path('irancel-mobile-bill-inquiry/', views.IrancelMobileBillInquiryApi.as_view(), name='irancel_mobile_bill_inquiry'),
+    path('irancel-mobile-bill-inquiry/', views.BillInquiryApi.as_view(), name='bill_inquiry'),
 
 
 ]

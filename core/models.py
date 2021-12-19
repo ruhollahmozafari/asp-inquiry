@@ -178,7 +178,10 @@ class MtnMobileBillInquiry(Mobile):
 #         return self.MobileNumber
 
 class Phone(models.Model):
-    Number = models.IntegerField(validators=[MinValueValidator(11), MaxValueValidator(11)], verbose_name='FixedLineNumber', blank=True, null=True)
+    # Number = models.IntegerField(validators=[MinValueValidator(11), MaxValueValidator(11)], verbose_name='FixedLineNumber', blank=True, null=True)
+    Number = models.CharField(max_length=50, blank=True, null=True)
+    Description = models.CharField(max_length=50, verbose_name='Description', blank=True, null=True),
+    Code = models.CharField(max_length=100, verbose_name='Code ',blank=True, null=True),
     Amount = models.IntegerField(verbose_name='Amount', blank=True, null=True),
     PreviousDate = models.CharField(max_length=50,verbose_name='PreviousDate', blank=True, null=True)
     CurrentDate = models.CharField(max_length=50,verbose_name='CurrentDate', blank=True, null=True)
