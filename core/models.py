@@ -160,16 +160,19 @@ class MtnMobileBillInquiry(Mobile):
 # ------------------------------------------------------------------------------------------------------------------
 # MtnMobileBillInquiry
 class IrancelMobileBillInquiry(models.Model):
-    mobileNumber = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
-    amount = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
-    billID = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
-    extraInfo = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
-    paymentID = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    MobileNumber = models.CharField(max_length=100, verbose_name='MobileNumber'),
+    Description = models.CharField(max_length=250, verbose_name='Description'),
+    Code = models.CharField(max_length=50, verbose_name='Code'),
+    Amount = models.CharField(max_length=50, verbose_name='Amount', blank=True, null=True),
+    BillID = models.CharField(max_length=50, verbose_name='BillID', blank=True, null=True),
+    ExtraInfo = models.CharField(max_length=50, verbose_name='ExtraInfo', blank=True, null=True),
+    PaymentID = models.CharField(max_length=50, verbose_name='PaymentID', blank=True, null=True),
+
 
     class Meta:
         ordering = ['id']
-        verbose_name = 'MtnMobileBillInquiry'
-        verbose_name_plural = 'MtnMobileBillInquiry'
+        verbose_name = 'IrancelMobileBillInquiry'
+        verbose_name_plural = 'IrancelMobileBillInquiries'
 
     def __str__(self):
-        return self.mobileNumber
+        return self.MobileNumber

@@ -20,20 +20,29 @@ class IrancelMobileBillInquiryApi(APIView):
     def get(self, request, format=None):
         parameters = {
             "Identity": {
-                "Token": "String content"
+                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
             },
             "Parameters": {
-                "MobileNumber": "String content",
-                "TraceNumber": "String content"
+                "MobileNumber": "09376064697",
+                "TraceNumber": "00000000000000000123456789"
             }
         }
 
-        response = requests.get("https://core.inquiry.ayantech.ir/webservices/Core.svc/MtnMobileBillInquiry", params = parameters)
+        response = requests.post("https://core.inquiry.ayantech.ir/webservices/Core.svc/MtnMobileBillInquiry", json=parameters)
+        data_dict = response.json()
+        data_dict["MobileNumber"] = "09376064697"
+        data_dict.update(data_dict.pop('Description', {}))
+        data_dict.update(data_dict.pop('Status', {}))
+        if not data_dict['Parameters'] == None:
+            data_dict.update(data_dict.pop('Parameters', {}))
+        else:
+            data_dict.pop('Parameters')
         print("-----------------------------------------------")
-        print(response)
-        print(response.json())
+        print(data_dict)
+        print("-----------------------------------------------")
+        m = IrancelMobileBillInquiry(**data_dict)
+        m.save()
 
-        print("-----------------------------------------------")
         return Response(response)
 
 # @api_view(['GET', 'PUT', 'DELETE'])
