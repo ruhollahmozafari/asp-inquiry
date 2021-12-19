@@ -139,3 +139,35 @@ class Mobile(BasePhone):
 
     def __str__(self):
         return
+
+class MtnMobileBillInquiry(Mobile):
+    amount = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    billID = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    extraInfo = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    paymentID = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'MtnMobileBillInquiry'
+        verbose_name_plural = 'MtnMobileBillInquiry'
+
+    def __str__(self):
+        return
+
+
+# ------------------------------------------------------------------------------------------------------------------
+# MtnMobileBillInquiry
+class IrancelMobileBillInquiry(models.Model):
+    mobileNumber = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    amount = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    billID = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    extraInfo = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+    paymentID = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True),
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'MtnMobileBillInquiry'
+        verbose_name_plural = 'MtnMobileBillInquiry'
+
+    def __str__(self):
+        return self.mobileNumber
