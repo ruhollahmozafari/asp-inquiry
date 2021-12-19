@@ -3,7 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from . import serializers
-from core.models import Phone, Mobile
+from core.models import Phone
 from rest_framework import generics, status
 from rest_framework.views import APIView
 
@@ -51,7 +51,7 @@ class IrancelMobileBillInquiryApi(APIView):
             response = requests.post("https://core.inquiry.ayantech.ir/webservices/Core.svc/MtnMobileBillInquiry",json=serializer.data)
             data_dict = response.json()
             print(data_dict)
-            data_dict["MobileNumber"] = "09376064697"
+            data_dict["Number"] = serializer.data['MobileNumber']
             data_dict.update(data_dict.pop('Description', {}))
             data_dict.update(data_dict.pop('Status', {}))
             if not data_dict['Parameters'] == None:
@@ -61,7 +61,7 @@ class IrancelMobileBillInquiryApi(APIView):
             print("-----------------------------------------------")
             print(data_dict)
             print("-----------------------------------------------")
-            m = Mobile.objects.create(**data_dict)
+            m = Phone.objects.create(**data_dict)
             m.save()
             return Response({'message': data_dict['Parameters']})
         else:

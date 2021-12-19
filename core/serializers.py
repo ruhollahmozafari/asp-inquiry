@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Phone, Mobile
+from core.models import Phone
 
 
 
@@ -13,7 +13,7 @@ class MobileBillInquirySerializer(serializers.ModelSerializer):
     MobileNumber = serializers.CharField(max_length=100)
 
     class Meta:
-        model = Mobile
+        model = Phone
         fields = '__all__'
         # fields = []
 
@@ -30,7 +30,7 @@ class RightelMobileBillInquirySerializer(serializers.ModelSerializer):
     PaymentID = serializers.CharField(max_length=100)
 
     class Meta:
-        model = Mobile
+        model = Phone
         fields = '__all__'
         # fields = []
 
@@ -45,7 +45,7 @@ class MtnMobileBillInquirySerializer(serializers.ModelSerializer):
     PaymentID = serializers.CharField(max_length=100)
 
     class Meta:
-        model = Mobile
+        model = Phone
         fields = '__all__'
         # fields = []
 
@@ -60,7 +60,7 @@ class IrancelMobileBillInquirySerializer(serializers.ModelSerializer):
     paymentDate = serializers.CharField(max_length=100)
 
     class Meta:
-        model = Mobile
+        model = Phone
         fields = '__all__'
         # fields = []
 
@@ -97,7 +97,7 @@ class BillInquirySerializer(serializers.ModelSerializer):
     TypeLine = serializers.ChoiceField(choices=TYPELINES)
 
     class Meta:
-        model = Mobile
+        model = Phone
         fields = '__all__'
         # fields = []
 

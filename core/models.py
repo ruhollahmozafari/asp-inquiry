@@ -178,7 +178,8 @@ class MtnMobileBillInquiry(Mobile):
 #         return self.MobileNumber
 
 class Phone(models.Model):
-    FixedLineNumber = models.IntegerField(validators=[MinValueValidator(11), MaxValueValidator(11)], verbose_name='FixedLineNumber', blank=True, null=True)
+    Number = models.IntegerField(validators=[MinValueValidator(11), MaxValueValidator(11)], verbose_name='FixedLineNumber', blank=True, null=True)
+    Amount = models.IntegerField(verbose_name='Amount', blank=True, null=True),
     PreviousDate = models.CharField(max_length=50,verbose_name='PreviousDate', blank=True, null=True)
     CurrentDate = models.CharField(max_length=50,verbose_name='CurrentDate', blank=True, null=True)
     PaymentDate = models.CharField(max_length=50,verbose_name='PaymentDate', blank=True, null=True)
@@ -186,6 +187,7 @@ class Phone(models.Model):
     BillID = models.CharField(max_length=50,verbose_name='BillID', blank=True, null=True)
     PaymentID = models.CharField(max_length=50,verbose_name='PaymentID', blank=True, null=True)
     Cycle = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True)
+    Operator = models.CharField(max_length=50, verbose_name='Operator', blank=True, null=True)
 
     class Meta:
         ordering = ['id']
@@ -195,20 +197,3 @@ class Phone(models.Model):
     def __str__(self):
         return
 
-
-class Mobile(models.Model):
-    Description = models.CharField(max_length=250, verbose_name='Description'),
-    Code = models.CharField(max_length=50, verbose_name='Code'),
-    Amount = models.CharField(max_length=50, verbose_name='Amount', blank=True, null=True),
-    BillID = models.CharField(max_length=50, verbose_name='BillID', blank=True, null=True),
-    ExtraInfo = models.CharField(max_length=50, verbose_name='ExtraInfo', blank=True, null=True),
-    PaymentID = models.CharField(max_length=50, verbose_name='PaymentID', blank=True, null=True),
-    Operator = models.CharField(max_length=50,verbose_name='Operator')
-
-    class Meta:
-        ordering = ['id']
-        verbose_name = 'Mobile'
-        verbose_name_plural = 'Mobiles'
-
-    def __str__(self):
-        return
