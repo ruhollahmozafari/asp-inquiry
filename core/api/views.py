@@ -30,6 +30,7 @@ class IrancelMobileBillInquiryApi(APIView):
 
         response = requests.post("https://core.inquiry.ayantech.ir/webservices/Core.svc/MtnMobileBillInquiry", json=parameters)
         data_dict = response.json()
+        print(data_dict)
         data_dict["MobileNumber"] = "09376064697"
         data_dict.update(data_dict.pop('Description', {}))
         data_dict.update(data_dict.pop('Status', {}))
@@ -40,7 +41,7 @@ class IrancelMobileBillInquiryApi(APIView):
         print("-----------------------------------------------")
         print(data_dict)
         print("-----------------------------------------------")
-        m = IrancelMobileBillInquiry(**data_dict)
+        m = IrancelMobileBillInquiry.objects.create(**data_dict)
         m.save()
 
         return Response(response)
