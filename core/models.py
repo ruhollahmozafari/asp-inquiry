@@ -14,6 +14,7 @@ User = get_user_model()
 #         verbose_name = 'Inquiry'
 #         verbose_name_plural = 'Inquiries'
 
+"""
 
 class RightelMobileInquiry(models.Model):
     previous_date = models.CharField(max_length=250, verbose_name='previous_date')
@@ -154,6 +155,7 @@ class MtnMobileBillInquiry(Mobile):
     def __str__(self):
         return
 
+"""
 
 # ------------------------------------------------------------------------------------------------------------------
 # MtnMobileBillInquiry
