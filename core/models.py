@@ -4,21 +4,32 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-
-class Phone(models.Model):
+OPERATORS = [
+    ('Irancell','Irancell'),
+    ('Hamrahavval','Hamrahavval'),
+    ('Rightel','Rightel'),
+]
+TYPELINE = [
+    ('Mobile','Mobile'),
+    ('FixedLine','Hamrahavval'),
+]
+class   Phone(models.Model):
     # Number = models.IntegerField(validators=[MinValueValidator(11), MaxValueValidator(11)], verbose_name='FixedLineNumber', blank=True, null=True)
     Number = models.CharField(max_length=50, blank=True, null=True)
-    Description = models.CharField(max_length=50, verbose_name='Description', blank=True, null=True),
-    Code = models.CharField(max_length=100, verbose_name='Code ',blank=True, null=True),
-    Amount = models.IntegerField(verbose_name='Amount', blank=True, null=True),
+    Code = models.CharField(max_length=100, verbose_name='Code', blank=True, null=True)
+    Description = models.CharField(max_length=50, verbose_name='Description', blank=True, null=True)
+    Amount = models.IntegerField(verbose_name='Amount', blank=True, null=True)
     PreviousDate = models.CharField(max_length=50,verbose_name='PreviousDate', blank=True, null=True)
     CurrentDate = models.CharField(max_length=50,verbose_name='CurrentDate', blank=True, null=True)
     PaymentDate = models.CharField(max_length=50,verbose_name='PaymentDate', blank=True, null=True)
     FullName = models.CharField(max_length=50,verbose_name='FullName', blank=True, null=True)
     BillID = models.CharField(max_length=50,verbose_name='BillID', blank=True, null=True)
     PaymentID = models.CharField(max_length=50,verbose_name='PaymentID', blank=True, null=True)
-    Cycle = models.CharField(max_length=50, verbose_name='zone_letter', blank=True, null=True)
-    Operator = models.CharField(max_length=50, verbose_name='Operator', blank=True, null=True)
+    Cycle = models.CharField(max_length=50, verbose_name='Cycle', blank=True, null=True)
+    TraceNumber = models.CharField(max_length=100, blank=True, null=True)
+    Operator = models.CharField(max_length=50, verbose_name='Operator',choices=OPERATORS, blank=True, null=True)
+    TypeLine = models.CharField(max_length=50, verbose_name='TypeLine',choices=TYPELINE, blank=True, null=True)
+    last_inquiry = models.DateField(auto_now_add=True, verbose_name='last inquiry', blank=True, null=True)
 
     class Meta:
         ordering = ['id']

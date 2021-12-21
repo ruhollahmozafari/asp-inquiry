@@ -2,29 +2,26 @@ from rest_framework import serializers
 from core.models import Phone
 
 class PhoneBillInquirySerializer(serializers.ModelSerializer):
-    MobileNumber = serializers.CharField(max_length=100)
-    TraceNumber = serializers.CharField(max_length=100, required=False)
-    CurrentDate = serializers.CharField(max_length=100, required=False)
-    Amount = serializers.IntegerField(read_only=True, required=False)
-    paymentDate = serializers.CharField(max_length=100, required=False)
 
     class Meta:
         model = Phone
         # fields = '__all__'
-        fields = ['MobileNumber','TraceNumber','CurrentDate','Amount','paymentDate',]
+        fields = ['Number','Description','Code','Amount','PreviousDate', 'CurrentDate', 'PaymentDate', 'FullName', 'BillID', 'Operator','TypeLine']
 
-    def to_representation(self, instance):
-        ret = super(PhoneBillInquirySerializer, self).to_representation(instance)
 
-        data = {
-            "Identity": {
-                "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-            },
-            "Parameters": {
-                "MobileNumber": ret.get('MobileNumber')
-            }
-        }
-        return data
+    #
+    # def to_representation(self, instance):
+    #     ret = super(PhoneBillInquirySerializer, self).to_representation(instance)
+    #
+    #     data = {
+    #         "Identity": {
+    #             "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+    #         },
+    #         "Parameters": {
+    #             "MobileNumber": ret.get('Number')
+    #         }
+    #     }
+    #     return data
 
 
 
