@@ -2,11 +2,12 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from . import serializers
-from core.models import Phone
+from core.models import Inquiry, Device
 from rest_framework import generics, status
 from rest_framework.views import APIView
 import json
 import requests
+
 
 api_operator_link = {
     'Mobile':{
@@ -16,8 +17,38 @@ api_operator_link = {
     },
     'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry'
 }
+
+# def merge_two_dicts(x, y):
+#     z = x.copy()   
+#     z.update(y)    
+#     return z
+
+def determine_device(device_ID):
+    device = get_object_or_404(Device, pk=int(device_ID))
+    return device
+    
+def get_data(device):
+    device_type = device.device_type
+
+    if device_type == 'phone':
+        return {
+                "Identity": {
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                },
+                "Parameters": {
+                    "MobileNumber": device.Number
+                }
+            }
+
+def get_api_operator_link(device):
+    device_type = device.device_type
+
+    if device_type == 'phone':
+        return api_operator_link[device.TypeLine][device.Operator]
+
+
 class BillInquiryApi(APIView):
-    serializer_class = serializers.PhoneBillInquirySerializer
+    serializer_class = serializers.BillInquirySerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -31,30 +62,35 @@ class BillInquiryApi(APIView):
                 'User-Agent':'PostmanRuntime/7.28.4',
                 'Accept-Encoding':'gizp, deflate, br',
             }
-            data = {
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                },
-                "Parameters": {
-                    "MobileNumber": serializer.data['Number']
-                }
-            }
+            print(serializer.data)
+            device = determine_device( serializer.data['device_id'] )
+            data = get_data( device )
+            api_link = get_api_operator_link( device )
+
             response = requests.post(
-                api_operator_link[serializer.data['TypeLine']][serializer.data['Operator']],
+                api_link,
                 headers=header,
                 data=json.dumps(data)
             )
             data_dict = response.json()
-            data_dict["Number"] = serializer.data['Number']
+            data_dict["Number"] = device.Number 
             data_dict.update(data_dict.pop('Description', {}))
             data_dict.update(data_dict.pop('Status', {}))
+
             if not data_dict['Parameters'] == None:
                 data_dict.update(data_dict.pop('Parameters', {}))
             else:
                 data_dict.pop('Parameters')
-            data_res = {**data_dict, **serializer.data}
-            m = Phone(**data_res)
-            m.save()
+
+            print(data_dict)
+            # data_res = merge_two_dicts( device_data ,data_dict)
+            # print(data_res)
+
+            if data_dict['Code'] == 'G00000':
+                m = Inquiry(device)
+                m.update(**data_dict)
+                m.save()
+
             return Response({'message': data_dict['Description']})
         else:
             return Response(
@@ -85,7 +121,7 @@ class BillInquiryApi(APIView):
 
 
 class DeleteInquiry(generics.RetrieveAPIView):
-    queryset = Phone.objects.all()
+    queryset = Device.objects.all()
 
     def get(self, request, *args, **kwargs):
         question = get_object_or_404(Phone, pk=kwargs.get('pk'))
@@ -94,11 +130,11 @@ class DeleteInquiry(generics.RetrieveAPIView):
 
 
 class UpdateInquiry(generics.UpdateAPIView):
-    queryset = Phone.objects.all()
+    queryset = Device.objects.all()
 
     def get(self, request, *args, **kwargs):
         phone = get_object_or_404(Phone, pk=kwargs.get('pk'))
-        serializer = serializers.PhoneSerializer(phone, data=request.data, partial=True)
+        serializer = serializers.DeviceSerializer(phone, data=request.data, partial=True)
         if serializer.is_valid():
             phone = serializer.save()
             return Response(serializers.PhoneSerializer(phone).data)
@@ -106,11 +142,11 @@ class UpdateInquiry(generics.UpdateAPIView):
 
 
 class RetrieveInquiry(generics.UpdateAPIView):
-    queryset = Phone.objects.all()
+    queryset = Device.objects.all()
 
     def get(self, request, *args, **kwargs):
         phone = get_object_or_404(Phone, pk=kwargs.get('pk'))
-        serializer = serializers.PhoneSerializer(phone)
+        serializer = serializers.DeviceSerializer(phone)
         return Response(serializer.data)
 
 
