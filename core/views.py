@@ -11,8 +11,8 @@ import requests
 
 api_operator_link = {
     'Mobile':{
-        'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
-        'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIExtendedBillInquiryRequestOtp',
+        'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
+        'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIExtendedBillInquiryRequestOtp',
         'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
     },
     'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry'
@@ -31,20 +31,59 @@ def get_data(device):
     device_type = device.device_type
 
     if device_type == 'phone':
+        print(device.Number)
         return {
                 "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                    # "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                    "Token": "DB5529C5350449C8A71A87ACD6259172"
                 },
                 "Parameters": {
                     "MobileNumber": device.Number
                 }
             }
+    elif device_type == 'car':
+        return {
+                "Identity": {
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                },
+                "Parameters": {
+                    "MobileNumber": device.BarCode
+                }
+            }
+def change_mapping_data(device, data_dict):
+    data_dict.update(data_dict.pop('Description', {}))
+    data_dict.update(data_dict.pop('Status', {}))
+
+    if not data_dict['Parameters'] == None:
+        data_dict.update(data_dict.pop('Parameters', {}))
+        if not data_dict['FinalTerm'] == None:
+            FinalTerm_data = {"FinalTerm_" + str(key): val for key, val in data_dict['FinalTerm'].items()}
+            data_dict.pop('FinalTerm')
+            data_dict.update(FinalTerm_data)
+        else:
+            data_dict.pop('FinalTerm')
+
+        if not data_dict['MidTerm'] == None:
+            MidTerm_data = {"MidTerm_" + str(key): val for key, val in data_dict['MidTerm'].items()}
+            data_dict.pop('MidTerm')
+            data_dict.update(MidTerm_data)
+        else:
+            data_dict.pop('MidTerm')
+            
+    else:
+        data_dict.pop('Parameters')
+    
+    return data_dict
+
 
 def get_api_operator_link(device):
     device_type = device.device_type
 
     if device_type == 'phone':
-        return api_operator_link[device.TypeLine][device.Operator]
+        if api_operator_link[device.TypeLine] == 'Mobile':
+            return api_operator_link[device.TypeLine][device.Operator]
+        else:
+            return api_operator_link[device.TypeLine]
 
 
 class BillInquiryApi(APIView):
@@ -54,44 +93,38 @@ class BillInquiryApi(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            # print(serializer.data['Number'])
+
             header = {
                 'Content-Type':'application/json',
                 'Accept':'application/json',
                 'Connection':'keep-alive',
-                'User-Agent':'PostmanRuntime/7.28.4',
-                'Accept-Encoding':'gizp, deflate, br',
+                'User-Agent': 'PostmanRuntime/7.28.4',
+                'Accept-Encoding':'gzip, deflate, br'
             }
-            print(serializer.data)
             device = determine_device( serializer.data['device_id'] )
             data = get_data( device )
             api_link = get_api_operator_link( device )
-
+            print(api_link)
             response = requests.post(
                 api_link,
                 headers=header,
                 data=json.dumps(data)
+                # data=data
             )
             data_dict = response.json()
-            data_dict["Number"] = device.Number 
-            data_dict.update(data_dict.pop('Description', {}))
-            data_dict.update(data_dict.pop('Status', {}))
-
-            if not data_dict['Parameters'] == None:
-                data_dict.update(data_dict.pop('Parameters', {}))
-            else:
-                data_dict.pop('Parameters')
-
+            print(data_dict)
+            data_dict = change_mapping_data(device,data_dict)
             print(data_dict)
             # data_res = merge_two_dicts( device_data ,data_dict)
             # print(data_res)
 
             if data_dict['Code'] == 'G00000':
-                m = Inquiry(device)
-                m.update(**data_dict)
+                m = Inquiry(**data_dict)
+                m.device = device
                 m.save()
 
             return Response({'message': data_dict['Description']})
+        
         else:
             return Response(
                 serializer.errors,
@@ -141,12 +174,12 @@ class UpdateInquiry(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RetrieveInquiry(generics.UpdateAPIView):
+class RetrieveDevice(generics.UpdateAPIView):
     queryset = Device.objects.all()
 
     def get(self, request, *args, **kwargs):
-        phone = get_object_or_404(Phone, pk=kwargs.get('pk'))
-        serializer = serializers.DeviceSerializer(phone)
+        devices = Device.objects.filter(is_active = True)
+        serializer = serializers.DeviceSerializer(devices,  many=True)
         return Response(serializer.data)
 
 
