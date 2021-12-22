@@ -17,22 +17,12 @@ api_operator_link = {
     },
     'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry'
 }
-
-# def merge_two_dicts(x, y):
-#     z = x.copy()   
-#     z.update(y)    
-#     return z
-
-def determine_device(device_ID):
-    device = get_object_or_404(Device, pk=int(device_ID))
-    return device
     
 def get_data(device):
     device_type = device.device_type
 
     if device_type == 'phone':
-        print(device.Number)
-        return {
+        return json.dumps({
                 "Identity": {
                     # "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
                     "Token": "DB5529C5350449C8A71A87ACD6259172"
@@ -40,16 +30,18 @@ def get_data(device):
                 "Parameters": {
                     "MobileNumber": device.Number
                 }
-            }
+            })
+
     elif device_type == 'car':
-        return {
+        return json.dumps({
                 "Identity": {
                     "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
                 },
                 "Parameters": {
                     "MobileNumber": device.BarCode
                 }
-            }
+            })
+
 def change_mapping_data(device, data_dict):
     data_dict.update(data_dict.pop('Description', {}))
     data_dict.update(data_dict.pop('Status', {}))
@@ -101,35 +93,61 @@ class BillInquiryApi(APIView):
                 'User-Agent': 'PostmanRuntime/7.28.4',
                 'Accept-Encoding':'gzip, deflate, br'
             }
-            device = determine_device( serializer.data['device_id'] )
+            device = get_object_or_404(Device, pk=int(serializer.data['device_id']))
             data = get_data( device )
             api_link = get_api_operator_link( device )
-            print(api_link)
             response = requests.post(
                 api_link,
                 headers=header,
-                data=json.dumps(data)
-                # data=data
+                data=data,
             )
-            data_dict = response.json()
-            print(data_dict)
-            data_dict = change_mapping_data(device,data_dict)
-            print(data_dict)
-            # data_res = merge_two_dicts( device_data ,data_dict)
-            # print(data_res)
+            responsed_data = response.json()
+            maped_data = change_mapping_data(device, responsed_data)
 
-            if data_dict['Code'] == 'G00000':
-                m = Inquiry(**data_dict)
+            if maped_data['Code'] == 'G00000':
+                m = Inquiry(**maped_data)
                 m.device = device
                 m.save()
 
-            return Response({'message': data_dict['Description']})
+            return Response({'message': maped_data['Description']})
         
         else:
             return Response(
                 serializer.errors,
 
                 status=status.HTTP_400_BAD_REQUEST,)
+
+
+class DeleteDevice(generics.RetrieveAPIView):
+    queryset = Device.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        question = get_object_or_404(Device, pk=kwargs.get('pk'))
+        question.delete()
+        return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
+
+
+class UpdateDevice(generics.UpdateAPIView):
+    queryset = Device.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        device = get_object_or_404(Device, pk=kwargs.get('pk'))
+        serializer = serializers.DeviceSerializer(device, data=request.data, partial=True)
+        if serializer.is_valid():
+            device = serializer.save()
+            return Response(serializers.DeviceSerializer(device).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RetrieveDevice(generics.UpdateAPIView):
+    queryset = Device.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        devices = Device.objects.filter(is_active = True)
+        serializer = serializers.c(devices,  many=True)
+        return Response(serializer.data)
+
+
 
 
 # class InquiryDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -151,38 +169,6 @@ class BillInquiryApi(APIView):
 #             phone = serializer.save()
 #             return Response(serializers.PhoneSerializer(phone).data)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class DeleteInquiry(generics.RetrieveAPIView):
-    queryset = Device.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        question = get_object_or_404(Phone, pk=kwargs.get('pk'))
-        question.delete()
-        return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
-
-
-class UpdateInquiry(generics.UpdateAPIView):
-    queryset = Device.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        phone = get_object_or_404(Phone, pk=kwargs.get('pk'))
-        serializer = serializers.DeviceSerializer(phone, data=request.data, partial=True)
-        if serializer.is_valid():
-            phone = serializer.save()
-            return Response(serializers.PhoneSerializer(phone).data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class RetrieveDevice(generics.UpdateAPIView):
-    queryset = Device.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        devices = Device.objects.filter(is_active = True)
-        serializer = serializers.DeviceSerializer(devices,  many=True)
-        return Response(serializer.data)
-
-
 
     # def get_serializer_class(self):
     #     print("******************************************##########")
