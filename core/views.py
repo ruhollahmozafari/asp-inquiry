@@ -20,13 +20,21 @@ class LargeResultsSetPagination(pagination.PageNumberPagination):
     max_page_size = 10000
 
 
-api_operator_link = {
-    'Mobile':{
+api_link = {
+    'phone':{
+        'Mobile':{
         'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
         'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
         'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
+        },
+        'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry',
     },
-    'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry'
+    'car':'https://core.inquiry.ayantech.ir/webservices/core.svc/TrafficFinesInquiry',
+    'home':{
+        'ElectricityBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/ElectricityBillInquiry',
+        'GasBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/GasBillInquiry',
+        'WaterBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/WaterBillInquiry',
+    }
 }
     
 def get_data(device):
@@ -39,8 +47,8 @@ def get_data(device):
     if device_type == 'phone':
         return json.dumps({
                 "Identity": {
-                    # "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                    "Token": "DB5529C5350449C8A71A87ACD6259172"
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                    # "Token": "DB5529C5350449C8A71A87ACD6259172"
                 },
                 "Parameters": {
                     "MobileNumber": device.Number
@@ -53,14 +61,14 @@ def get_data(device):
                     "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
                 },
                 "Parameters": {
-                    "MobileNumber": device.BarCode
+                    "BarCode": device.BarCode
                 }
             })
 
 def change_mapping_data(device, data_dict):
     data_dict.update(data_dict.pop('Description', {}))
     data_dict.update(data_dict.pop('Status', {}))
-
+    data_dict['device'] = device
     if not data_dict['Parameters'] == None:
         data_dict.update(data_dict.pop('Parameters', {}))
         if not data_dict['FinalTerm'] == None:
@@ -83,7 +91,7 @@ def change_mapping_data(device, data_dict):
     return data_dict
 
 
-def get_api_operator_link(device):
+def get_api_link(device):
     """
         api URL change according to the device that the client intends to inquiry about 
         so this function give usthe address based on the advice
@@ -92,10 +100,16 @@ def get_api_operator_link(device):
 
     if device_type == 'phone':
         if device.TypeLine == 'Mobile':
-            print(api_operator_link[device.TypeLine][device.Operator])
-            return api_operator_link[device.TypeLine][device.Operator]
+            return api_link[device_type][device.TypeLine][device.Operator]
         else:
-            return api_operator_link[device.TypeLine]
+            return api_link[device_type][device.TypeLine]
+    
+    elif device_type == 'home':
+        return api_link[device_type][device.bill_type]
+    
+    elif device_type == 'car':
+        return api_link[device_type]
+
 
 
 class BillInquiryApi(APIView):
@@ -119,20 +133,24 @@ class BillInquiryApi(APIView):
             }
             device = get_object_or_404(Device, pk=int(serializer.data['device_id']))
             data = get_data( device )
-            api_link = get_api_operator_link( device )
-            print('-------------------------------------------------------------')
-            print(api_link)
+            api_link = get_api_link( device )
             response = requests.post(
                 api_link,
                 headers=header,
                 data=data,
             )
             responsed_data = response.json()
+            print('-------------------------------------------------------------')
             maped_data = change_mapping_data(device, responsed_data)
+            print(maped_data)
 
             if maped_data['Code'] == 'G00000':
-                m = Inquiry(**maped_data)
-                m.device = device
+                # m = Inquiry(**maped_data)
+                # m.device = device
+                # m.save()
+                s = BillInquirySerializer(**maped_data)
+                print(s)
+                m = Inquiry(**s)
                 m.save()
 
             return Response({'message': maped_data['Description']})

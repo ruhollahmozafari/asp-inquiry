@@ -5,9 +5,17 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+BILL_TYPE = [
+    ('ElectricityBill','ElectricityBill'),
+    ('GasBill','GasBill'),
+    ('WaterBill','WaterBill'),
+
+]
 DEVICE_TYPE = [
     ('phone','phone'),
     ('car','car'),
+    ('home','Home'),
+    
 ]
 OPERATORS = [
     ('Irancell','Irancell'),
@@ -79,6 +87,28 @@ class Device(models.Model):
         ordering = ['id']
         verbose_name = 'Device'
         verbose_name_plural = 'Devices'
+    # Home
+    bill_type = models.CharField(
+        max_length=50, 
+        verbose_name='bill_type',
+        choices=BILL_TYPE, 
+        blank=True, null=True
+    )
+    ElectricityBillID = models.CharField(
+        max_length=50, 
+        verbose_name='ElectricityBillID',
+        blank=True, null=True
+    )
+    ParticipateCode = models.CharField(
+        max_length=50, 
+        verbose_name='ParticipateCode',
+        blank=True, null=True
+    )
+    WaterBillID = models.CharField(
+        max_length=50, 
+        verbose_name='WaterBillID',
+        blank=True, null=True
+    )
 
 
 class Inquiry(models.Model):
@@ -114,6 +144,11 @@ class Inquiry(models.Model):
         verbose_name='PaymentID', 
         blank=True, null=True
     )
+    FullName = models.CharField(
+        max_length=50,
+        verbose_name='FullName', 
+        blank=True, null=True
+    )
     # Phone
     PreviousDate = models.CharField(
         max_length=50,
@@ -128,11 +163,6 @@ class Inquiry(models.Model):
     PaymentDate = models.CharField(
         max_length=50,
         verbose_name='PaymentDate', 
-        blank=True, null=True
-    )
-    FullName = models.CharField(
-        max_length=50,
-        verbose_name='FullName', 
         blank=True, null=True
     )
     Cycle = models.CharField(
@@ -222,6 +252,88 @@ class Inquiry(models.Model):
         blank=True, null=True
     )
 
+    # Home
+    Address = models.CharField(
+        max_length=50,
+        verbose_name='Address', 
+        blank=True, null=True
+    )
+    BillPdfUrl = models.CharField(
+        max_length=50,
+        verbose_name='BillPdfUrl', 
+        blank=True, null=True
+    )
+
+    ConsumptionType = models.CharField(
+        max_length=50,
+        verbose_name='ConsumptionType', 
+        blank=True, null=True
+    )
+    PreviousCounterDigit = models.CharField(
+        max_length=50,
+        verbose_name='PreviousCounterDigit', 
+        blank=True, null=True
+    )
+    CurrentCounterDigit = models.CharField(
+        max_length=50,
+        verbose_name='CurrentCounterDigit', 
+        blank=True, null=True
+    )
+    Abonman = models.CharField(
+        max_length=50,
+        verbose_name='Abonman', 
+        blank=True, null=True
+    )
+    Tax = models.CharField(
+        max_length=50,
+        verbose_name='Tax', 
+        blank=True, null=True
+    )
+    Insurance = models.CharField(
+        max_length=50,
+        verbose_name='Insurance', 
+        blank=True, null=True
+    )
+    TotalDays = models.CharField(
+        max_length=50,
+        verbose_name='TotalDays', 
+        blank=True, null=True
+    )
+    PowerPaytollAmount = models.CharField(
+        max_length=50,
+        verbose_name='PowerPaytollAmount', 
+        blank=True, null=True
+    )
+    TaxAmount = models.CharField(
+        max_length=50,
+        verbose_name='TaxAmount', 
+        blank=True, null=True
+    )
+    InsuranceAmount = models.CharField(
+        max_length=50,
+        verbose_name='InsuranceAmount', 
+        blank=True, null=True
+    )
+    AverageConsumption = models.CharField(
+        max_length=50,
+        verbose_name='AverageConsumption', 
+        blank=True, null=True
+    )
+    SaleYear = models.CharField(
+        max_length=50,
+        verbose_name='SaleYear', 
+        blank=True, null=True
+    )
+    CustomerType = models.CharField(
+        max_length=50,
+        verbose_name='CustomerType', 
+        blank=True, null=True
+    )
+    TariffType = models.CharField(
+        max_length=50,
+        verbose_name='TariffType', 
+        blank=True, null=True
+    )
     class Meta:
         ordering = ['id']
         verbose_name = 'Inquiry'

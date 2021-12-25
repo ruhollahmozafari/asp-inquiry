@@ -16,3 +16,15 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # fields = ['Number', 'Operator','TypeLine','owner', 'name', 'last_inquiry', 'device_type', 'description']
 
+# class OwnerSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = User
+#         fields = '__all__'
+        
+class BillInquirySerializer(serializers.ModelSerializer):
+    device = DeviceSerializer()
+
+    class Meta:
+        model = Inquiry
+        fields = '__all__'
