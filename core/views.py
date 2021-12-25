@@ -7,18 +7,33 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 import json
 import requests
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import pagination
+
+
+class LargeResultsSetPagination(pagination.PageNumberPagination):
+    """
+        pagination class
+    """
+    page_size = 2
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
 
 
 api_operator_link = {
     'Mobile':{
         'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
-        'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIExtendedBillInquiryRequestOtp',
+        'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
         'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
     },
     'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry'
 }
     
 def get_data(device):
+    """
+        the data( that the client intends to inquiry about ) that api received varies according to the device
+        so this function give usthe address based on the advice
+    """
     device_type = device.device_type
 
     if device_type == 'phone':
@@ -69,16 +84,25 @@ def change_mapping_data(device, data_dict):
 
 
 def get_api_operator_link(device):
+    """
+        api URL change according to the device that the client intends to inquiry about 
+        so this function give usthe address based on the advice
+    """
     device_type = device.device_type
 
     if device_type == 'phone':
-        if api_operator_link[device.TypeLine] == 'Mobile':
+        if device.TypeLine == 'Mobile':
+            print(api_operator_link[device.TypeLine][device.Operator])
             return api_operator_link[device.TypeLine][device.Operator]
         else:
             return api_operator_link[device.TypeLine]
 
 
 class BillInquiryApi(APIView):
+    """
+        create new inquiry for one of the client device
+    """
+
     serializer_class = serializers.BillInquirySerializer
 
     def post(self, request):
@@ -96,6 +120,8 @@ class BillInquiryApi(APIView):
             device = get_object_or_404(Device, pk=int(serializer.data['device_id']))
             data = get_data( device )
             api_link = get_api_operator_link( device )
+            print('-------------------------------------------------------------')
+            print(api_link)
             response = requests.post(
                 api_link,
                 headers=header,
@@ -118,20 +144,34 @@ class BillInquiryApi(APIView):
                 status=status.HTTP_400_BAD_REQUEST,)
 
 
-class DeleteDevice(generics.RetrieveAPIView):
+class DeleteDevice(generics.DestroyAPIView):
+    """
+        Delete inquiry 
+    """
     queryset = Device.objects.all()
 
+    def get_object(self, queryset=None):
+        device = Device.objects.get(pk=self.request.query_params['id'])
+        return device
+
     def get(self, request, *args, **kwargs):
-        question = get_object_or_404(Device, pk=kwargs.get('pk'))
-        question.delete()
+        device = self.get_object()
+        device.delete()
         return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateDevice(generics.UpdateAPIView):
+    """
+        Update the inquiry 
+    """
     queryset = Device.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        device = get_object_or_404(Device, pk=kwargs.get('pk'))
+    def get_object(self, queryset=None):
+        device = Device.objects.get(pk=self.request.query_params['id'])
+        return device
+
+    def post(self, request, *args, **kwargs):
+        device = self.get_object()
         serializer = serializers.DeviceSerializer(device, data=request.data, partial=True)
         if serializer.is_valid():
             device = serializer.save()
@@ -139,62 +179,19 @@ class UpdateDevice(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RetrieveDevice(generics.UpdateAPIView):
+class ListDevice(generics.ListAPIView):
+    """
+        Retrieve inquiry
+    """
     queryset = Device.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['owner', 'device_type', 'is_active']
+    ordering_fields = ['owner', 'device_type', 'is_active']
+    serializer_class = serializers.DeviceSerializer
+    pagination_class = LargeResultsSetPagination
+    page_size = 2
+    page_size_query_param = 'page_size'
+    
 
-    def get(self, request, *args, **kwargs):
-        devices = Device.objects.filter(is_active = True)
-        serializer = serializers.c(devices,  many=True)
-        return Response(serializer.data)
 
 
-
-
-# class InquiryDetail(generics.RetrieveUpdateDestroyAPIView):
-#
-#     def retrieve(self, request, *args, **kwargs):
-#         phone = get_object_or_404(Phone, pk=kwargs.get('pk'))
-#         serializer = serializers.PhoneSerializer(phone)
-#         return Response(serializer.data)
-#
-#     def destroy(self, request, *args, **kwargs):
-#         question = get_object_or_404(Phone, pk=kwargs.get('pk'))
-#         question.delete()
-#         return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
-#
-#     def update(self, request, *args, **kwargs):
-#         phone = get_object_or_404(Phone, pk=kwargs.get('pk'))
-#         serializer = serializers.PhoneSerializer(phone, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             phone = serializer.save()
-#             return Response(serializers.PhoneSerializer(phone).data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # def get_serializer_class(self):
-    #     print("******************************************##########")
-    #     if self.request.method == 'POST':
-    #         print("******************************************")
-    #         print(self.request.data)
-    #         type_line = self.request.data['TypeLine']
-    #
-    #         if type_line == 'Mobile':
-    #             operator = self.request.data['Operator']
-    #             if operator == 'Irancell':
-    #                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-    #                 return serializers.IrancelMobileBillInquirySerializer
-    #             elif operator == 'Hamrahavval':
-    #                 return serializers.MtnMobileBillInquirySerializer
-    #             elif operator == 'Rightel':
-    #                 return serializers.MtnMobileBillInquirySerializer
-    #             else:
-    #                 return serializers.MobileBillInquirySerializer
-    #
-    #         else:
-    #             return serializers.FixedLineBillInquirySerializer
-    #
-    #     elif self.request.method == 'GET':
-    #         return serializers.BillInquirySerializer
-    #     else:
-    #         return serializers.PhoneBillInquirySerializer
-
-    # def get(self, request, format=None):
