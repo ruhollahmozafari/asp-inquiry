@@ -21,22 +21,16 @@ class LargeResultsSetPagination(pagination.PageNumberPagination):
 
 
 api_link = {
-    'phone':{
-        'Mobile':{
-        'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
-        'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
-        'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
-        },
-        'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry',
-    },
+    'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
+    'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
+    'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
+    'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry',
     'car':'https://core.inquiry.ayantech.ir/webservices/core.svc/TrafficFinesInquiry',
-    'home':{
-        'ElectricityBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/ElectricityBillInquiry',
-        'GasBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/GasBillInquiry',
-        'WaterBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/WaterBillInquiry',
-    }
+    'ElectricityBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/ElectricityBillInquiry',
+    'GasBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/GasBillInquiry',
+    'WaterBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/WaterBillInquiry',
 }
-    
+
 def get_data(device):
     """
         the data( that the client intends to inquiry about ) that api received varies according to the device
@@ -91,27 +85,6 @@ def change_mapping_data(device, data_dict):
     return data_dict
 
 
-def get_api_link(device):
-    """
-        api URL change according to the device that the client intends to inquiry about 
-        so this function give usthe address based on the advice
-    """
-    device_type = device.device_type
-
-    if device_type == 'phone':
-        if device.TypeLine == 'Mobile':
-            return api_link[device_type][device.TypeLine][device.Operator]
-        else:
-            return api_link[device_type][device.TypeLine]
-    
-    elif device_type == 'home':
-        return api_link[device_type][device.bill_type]
-    
-    elif device_type == 'car':
-        return api_link[device_type]
-
-
-
 class BillInquiryApi(APIView):
     """
         create new inquiry for one of the client device
@@ -133,7 +106,7 @@ class BillInquiryApi(APIView):
             }
             device = get_object_or_404(Device, pk=int(serializer.data['device']))
             data = get_data( device )
-            api_link = get_api_link( device )
+            api_link = api_link[device_type]
             response = requests.post(
                 api_link,
                 headers=header,
@@ -160,6 +133,7 @@ class DeleteDevice(generics.DestroyAPIView):
     """
         Delete inquiry 
     """
+    serializer_class = serializers.DeviceSerializer
     queryset = Device.objects.all()
 
     def get_object(self, queryset=None):
@@ -176,6 +150,7 @@ class UpdateDevice(generics.UpdateAPIView):
     """
         Update the inquiry 
     """
+    serializer_class = serializers.DeviceSerializer
     queryset = Device.objects.all()
 
     def get_object(self, queryset=None):

@@ -5,27 +5,19 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-BILL_TYPE = [
-    ('ElectricityBill','ElectricityBill'),
-    ('GasBill','GasBill'),
-    ('WaterBill','WaterBill'),
 
-]
 DEVICE_TYPE = [
-    ('phone','phone'),
-    ('car','car'),
-    ('home','Home'),
-    
-]
-OPERATORS = [
+    ('FixedLine','FixedLine'),
     ('Irancell','Irancell'),
     ('Hamrahavval','Hamrahavval'),
     ('Rightel','Rightel'),
+    ('car','car'),
+    ('ElectricityBill','ElectricityBill'),
+    ('GasBill','GasBill'),
+    ('WaterBill','WaterBill'),
+    
 ]
-TYPELINE = [
-    ('Mobile','Mobile'),
-    ('FixedLine','FixedLine'),
-]
+
 
 class Device(models.Model):
     created_by = models.ForeignKey(
@@ -71,18 +63,7 @@ class Device(models.Model):
         max_length=50, 
         blank=True, null=True
     )
-    Operator = models.CharField(
-        max_length=50, 
-        verbose_name='Operator',
-        choices=OPERATORS, 
-        blank=True, null=True
-    )
-    TypeLine = models.CharField(
-        max_length=50, 
-        verbose_name='TypeLine',
-        choices=TYPELINE, 
-        blank=True, null=True
-    )
+
     # car
     BarCode = models.CharField(
         max_length=100, 
@@ -94,12 +75,6 @@ class Device(models.Model):
         verbose_name = 'Device'
         verbose_name_plural = 'Devices'
     # Home
-    bill_type = models.CharField(
-        max_length=50, 
-        verbose_name='bill_type',
-        choices=BILL_TYPE, 
-        blank=True, null=True
-    )
     ElectricityBillID = models.CharField(
         max_length=50, 
         verbose_name='ElectricityBillID',
