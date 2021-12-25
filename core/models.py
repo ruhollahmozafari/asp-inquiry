@@ -28,6 +28,12 @@ TYPELINE = [
 ]
 
 class Device(models.Model):
+    created_by = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE,
+        related_name='created_by', 
+        blank=True, null=True
+    )
     owner = models.ForeignKey(
         User, 
         on_delete=models.CASCADE,
@@ -117,7 +123,7 @@ class Inquiry(models.Model):
         on_delete=models.CASCADE,
         related_name='device',
         blank=True, null=True
-     )
+    )
 
     Code = models.CharField(
         max_length=100, 

@@ -68,7 +68,7 @@ def get_data(device):
 def change_mapping_data(device, data_dict):
     data_dict.update(data_dict.pop('Description', {}))
     data_dict.update(data_dict.pop('Status', {}))
-    data_dict['device'] = device
+    data_dict['device'] = device.id
     if not data_dict['Parameters'] == None:
         data_dict.update(data_dict.pop('Parameters', {}))
         if not data_dict['FinalTerm'] == None:
@@ -131,7 +131,7 @@ class BillInquiryApi(APIView):
                 'User-Agent': 'PostmanRuntime/7.28.4',
                 'Accept-Encoding':'gzip, deflate, br'
             }
-            device = get_object_or_404(Device, pk=int(serializer.data['device_id']))
+            device = get_object_or_404(Device, pk=int(serializer.data['device']))
             data = get_data( device )
             api_link = get_api_link( device )
             response = requests.post(
@@ -140,18 +140,12 @@ class BillInquiryApi(APIView):
                 data=data,
             )
             responsed_data = response.json()
-            print('-------------------------------------------------------------')
             maped_data = change_mapping_data(device, responsed_data)
-            print(maped_data)
 
             if maped_data['Code'] == 'G00000':
-                # m = Inquiry(**maped_data)
-                # m.device = device
-                # m.save()
-                s = BillInquirySerializer(**maped_data)
-                print(s)
-                m = Inquiry(**s)
-                m.save()
+                s = serializers.BillInquirySerializer(data=maped_data)
+                s.save()
+
 
             return Response({'message': maped_data['Description']})
         
@@ -195,6 +189,20 @@ class UpdateDevice(generics.UpdateAPIView):
             device = serializer.save()
             return Response(serializers.DeviceSerializer(device).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateDevice(generics.CreateAPIView):
+    """
+        Create the inquiry 
+    """
+    serializer_class = serializers.DeviceSerializer
+
+    def create(self,request, *args, **kwargs):
+        self.request.data['created_by'] = 1
+        return super(CreateDevice, self).create(request, *args, **kwargs)
+
+    # def perform_create(self, serializer):
+    #     serializer.save(created_by=1)
 
 
 class ListDevice(generics.ListAPIView):
