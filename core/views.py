@@ -38,7 +38,7 @@ def get_data(device):
     """
     device_type = device.device_type
 
-    if device_type == 'phone':
+    if device_type == 'Irancell' or device_type == 'Hamrahavval' or device_type == 'Rightel':
         return json.dumps({
                 "Identity": {
                     "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
@@ -106,9 +106,8 @@ class BillInquiryApi(APIView):
             }
             device = get_object_or_404(Device, pk=int(serializer.data['device']))
             data = get_data( device )
-            api_link = api_link[device_type]
             response = requests.post(
-                api_link,
+                api_link[device.device_type],
                 headers=header,
                 data=data,
             )
@@ -117,6 +116,7 @@ class BillInquiryApi(APIView):
 
             if maped_data['Code'] == 'G00000':
                 s = serializers.BillInquirySerializer(data=maped_data)
+                s.is_valid()
                 s.save()
 
 
