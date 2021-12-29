@@ -24,49 +24,65 @@ class Device(models.Model):
         User, 
         on_delete=models.CASCADE,
         related_name='created_by', 
-        blank=True, null=True
+        blank=True, null=True,
     )
     owner = models.ForeignKey(
         User, 
         on_delete=models.CASCADE,
         related_name='owner', 
-        blank=True, null=True
+        blank=True, null=True,
     )
     name = models.CharField(
         max_length=50, 
-        verbose_name='name', 
         blank=True, null=True
     )
     is_active = models.BooleanField(
-        verbose_name='is_active', 
         blank=True, null=True
     )
     description = models.CharField(
         max_length=250, 
-        verbose_name='description', 
         blank=True, null=True
     )
     last_inquiry = models.DateField(
         auto_now_add=True, 
-        verbose_name='last inquiry', 
         blank=True, null=True
     )
     device_type = models.CharField(
         max_length=50, 
-        verbose_name='device_type',
         choices=DEVICE_TYPE, 
         blank=True, null=True
     )
 
     # phone
-    Number = models.CharField(
+    MobileNumber = models.CharField(
         max_length=50, 
-        blank=True, null=True
+        blank=True, null=True,
     )
-
+    FixedLineNumber = models.CharField(
+        max_length=50, 
+        blank=True, null=True,
+    )
     # car
     BarCode = models.CharField(
         max_length=100, 
+        blank=True, null=True,
+    )
+
+    # Home
+    ElectricityBillID = models.CharField(
+        max_length=50, 
+        blank=True, null=True
+    )
+    ParticipateCode = models.CharField(
+        max_length=50, 
+        blank=True, null=True
+    )
+    GasBillID = models.CharField(
+        max_length=50, 
+        blank=True, null=True
+    )
+    WaterBillID = models.CharField(
+        max_length=50, 
         blank=True, null=True
     )
 
@@ -74,22 +90,6 @@ class Device(models.Model):
         ordering = ['id']
         verbose_name = 'Device'
         verbose_name_plural = 'Devices'
-    # Home
-    ElectricityBillID = models.CharField(
-        max_length=50, 
-        verbose_name='ElectricityBillID',
-        blank=True, null=True
-    )
-    ParticipateCode = models.CharField(
-        max_length=50, 
-        verbose_name='ParticipateCode',
-        blank=True, null=True
-    )
-    WaterBillID = models.CharField(
-        max_length=50, 
-        verbose_name='WaterBillID',
-        blank=True, null=True
-    )
 
 
 class Inquiry(models.Model):
@@ -102,167 +102,137 @@ class Inquiry(models.Model):
 
     Code = models.CharField(
         max_length=100, 
-        verbose_name='Code', 
         blank=True, null=True
     )
     Description = models.CharField(
         max_length=50, 
-        verbose_name='Description', 
         blank=True, null=True
     )
 
     Amount = models.IntegerField(
-        verbose_name='Amount', 
         blank=True, null=True   
     )
     BillID = models.CharField(
         max_length=50,
-        verbose_name='BillID', 
         blank=True, null=True
     )
     PaymentID = models.CharField(
         max_length=50,
-        verbose_name='PaymentID', 
         blank=True, null=True
     )
     FullName = models.CharField(
         max_length=50,
-        verbose_name='FullName', 
         blank=True, null=True
     )
     # Phone
     PreviousDate = models.CharField(
         max_length=50,
-        verbose_name='PreviousDate', 
         blank=True, null=True
     )
     CurrentDate = models.CharField(
         max_length=50,
-        verbose_name='CurrentDate', 
         blank=True, null=True
     )
     PaymentDate = models.CharField(
         max_length=50,
-        verbose_name='PaymentDate', 
         blank=True, null=True
     )
     Cycle = models.CharField(
         max_length=50, 
-        verbose_name='Cycle', 
         blank=True, null=True
     )
     TraceNumber = models.CharField(
         max_length=100, 
-        blank=True, null=True
+        blank=True, null=True,
     )
-
     MidTerm_Amount = models.CharField(
         max_length=50,
-        verbose_name='MidTerm_Amount', 
         blank=True, null=True
     )
     MidTerm_BillID = models.CharField(
         max_length=50,
-        verbose_name='MidTerm_BillID', 
         blank=True, null=True
     )
     MidTerm_PaymentID = models.CharField(
         max_length=50, 
-        verbose_name='MidTerm_PaymentID', 
         blank=True, null=True
     )
     FinalTerm_Amount = models.CharField(
         max_length=50,
-        verbose_name='FinalTerm_Amount', 
         blank=True, null=True
     )
     FinalTerm_BillID = models.CharField(
         max_length=50,
-        verbose_name='FinalTerm_BillID', 
         blank=True, null=True
     )
     FinalTerm_PaymentID = models.CharField(
         max_length=50, 
-        verbose_name='FinalTerm_PaymentID', 
         blank=True, null=True
     )
     # Car
     PlateNumber = models.CharField(
-        max_length=50,
-        verbose_name='PlateNumber', 
+        max_length=50, 
         blank=True, null=True
     )
     TotalAmount = models.CharField(
-        max_length=50,
-        verbose_name='TotalAmount', 
+        max_length=50, 
         blank=True, null=True
     )
     Details = models.CharField(
-        max_length=50, 
-        verbose_name='Details', 
+        max_length=50,  
         blank=True, null=True
     )
     City = models.CharField(
         max_length=50,
-        verbose_name='City', 
         blank=True, null=True
     )
     Location = models.CharField(
         max_length=50,
-        verbose_name='Location', 
         blank=True, null=True
     )
     Type = models.CharField(
-        max_length=50, 
-        verbose_name='Type', 
+        max_length=50,  
         blank=True, null=True
     )
     DateTime = models.CharField(
         max_length=50, 
-        verbose_name='DateTime', 
         blank=True, null=True
     )
     Delivery = models.CharField(
         max_length=50,
-        verbose_name='Delivery', 
         blank=True, null=True
     )
     SerialNumber = models.CharField(
         max_length=50,
-        verbose_name='SerialNumber', 
         blank=True, null=True
     )
 
     # Home
     Address = models.CharField(
-        max_length=50,
-        verbose_name='Address', 
+        max_length=250, 
         blank=True, null=True
     )
     BillPdfUrl = models.CharField(
         max_length=50,
-        verbose_name='BillPdfUrl', 
         blank=True, null=True
     )
-
+    ExtraInfo = models.TextField( 
+        blank=True, null=True
+    )
     ConsumptionType = models.CharField(
         max_length=50,
-        verbose_name='ConsumptionType', 
         blank=True, null=True
     )
     PreviousCounterDigit = models.CharField(
         max_length=50,
-        verbose_name='PreviousCounterDigit', 
         blank=True, null=True
     )
     CurrentCounterDigit = models.CharField(
         max_length=50,
-        verbose_name='CurrentCounterDigit', 
         blank=True, null=True
     )
     Abonman = models.CharField(
-        max_length=50,
-        verbose_name='Abonman', 
+        max_length=50, 
         blank=True, null=True
     )
     Tax = models.CharField(
@@ -272,47 +242,38 @@ class Inquiry(models.Model):
     )
     Insurance = models.CharField(
         max_length=50,
-        verbose_name='Insurance', 
         blank=True, null=True
     )
     TotalDays = models.CharField(
         max_length=50,
-        verbose_name='TotalDays', 
         blank=True, null=True
     )
     PowerPaytollAmount = models.CharField(
-        max_length=50,
-        verbose_name='PowerPaytollAmount', 
+        max_length=50, 
         blank=True, null=True
     )
     TaxAmount = models.CharField(
-        max_length=50,
-        verbose_name='TaxAmount', 
+        max_length=50, 
         blank=True, null=True
     )
     InsuranceAmount = models.CharField(
-        max_length=50,
-        verbose_name='InsuranceAmount', 
+        max_length=50, 
         blank=True, null=True
     )
     AverageConsumption = models.CharField(
         max_length=50,
-        verbose_name='AverageConsumption', 
         blank=True, null=True
     )
     SaleYear = models.CharField(
-        max_length=50,
-        verbose_name='SaleYear', 
+        max_length=50, 
         blank=True, null=True
     )
     CustomerType = models.CharField(
         max_length=50,
-        verbose_name='CustomerType', 
         blank=True, null=True
     )
     TariffType = models.CharField(
         max_length=50,
-        verbose_name='TariffType', 
         blank=True, null=True
     )
     class Meta:

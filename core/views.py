@@ -45,7 +45,17 @@ def get_data(device):
                     # "Token": "DB5529C5350449C8A71A87ACD6259172"
                 },
                 "Parameters": {
-                    "MobileNumber": device.Number
+                    "MobileNumber": device.MobileNumber
+                }
+            })
+
+    elif device_type == 'FixedLine':
+        return json.dumps({
+                "Identity": {
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                },
+                "Parameters": {
+                    "FixedLineNumber": device.FixedLineNumber
                 }
             })
 
@@ -58,6 +68,37 @@ def get_data(device):
                     "BarCode": device.BarCode
                 }
             })
+    
+    elif device_type == 'ElectricityBill':
+        return json.dumps({
+                "Identity": {
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                },
+                "Parameters": {
+                    "ElectricityBillID": device.ElectricityBillID
+                }
+            })
+    
+    elif device_type == 'GasBill':
+        return json.dumps({
+                "Identity": {
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                },
+                "Parameters": {
+                    "ParticipateCode": device.ParticipateCode,
+                    "GasBillID": device.GasBillID
+                }
+            })
+    
+    elif device_type == 'WaterBill':
+        return json.dumps({
+                "Identity": {
+                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
+                },
+                "Parameters": {
+                    "WaterBillID": device.WaterBillID
+                }
+            })
 
 def change_mapping_data(device, data_dict):
     data_dict.update(data_dict.pop('Description', {}))
@@ -65,19 +106,20 @@ def change_mapping_data(device, data_dict):
     data_dict['device'] = device.id
     if not data_dict['Parameters'] == None:
         data_dict.update(data_dict.pop('Parameters', {}))
-        if not data_dict['FinalTerm'] == None:
-            FinalTerm_data = {"FinalTerm_" + str(key): val for key, val in data_dict['FinalTerm'].items()}
-            data_dict.pop('FinalTerm')
-            data_dict.update(FinalTerm_data)
-        else:
-            data_dict.pop('FinalTerm')
-
-        if not data_dict['MidTerm'] == None:
-            MidTerm_data = {"MidTerm_" + str(key): val for key, val in data_dict['MidTerm'].items()}
-            data_dict.pop('MidTerm')
-            data_dict.update(MidTerm_data)
-        else:
-            data_dict.pop('MidTerm')
+        if 'FinalTerm' in data_dict.keys():
+            if not data_dict['FinalTerm'] == None:
+                FinalTerm_data = {"FinalTerm_" + str(key): val for key, val in data_dict['FinalTerm'].items()}
+                data_dict.pop('FinalTerm')
+                data_dict.update(FinalTerm_data)
+            else:
+                data_dict.pop('FinalTerm')
+        if 'MidTerm' in data_dict.keys():
+            if not data_dict['MidTerm'] == None:
+                MidTerm_data = {"MidTerm_" + str(key): val for key, val in data_dict['MidTerm'].items()}
+                data_dict.pop('MidTerm')
+                data_dict.update(MidTerm_data)
+            else:
+                data_dict.pop('MidTerm')
             
     else:
         data_dict.pop('Parameters')
@@ -92,8 +134,10 @@ class BillInquiryApi(APIView):
 
     serializer_class = serializers.BillInquirySerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+    def post(self, request, *args, **kwargs):
+        # serializer = self.serializer_class(data=request.data)
+        # serializer = self.serializer_class(data=request.query_params)
+        serializer = self.serializer_class(data=kwargs)
 
         if serializer.is_valid():
 
@@ -112,15 +156,18 @@ class BillInquiryApi(APIView):
                 data=data,
             )
             responsed_data = response.json()
+            print(responsed_data)
             maped_data = change_mapping_data(device, responsed_data)
 
             if maped_data['Code'] == 'G00000':
                 s = serializers.BillInquirySerializer(data=maped_data)
-                s.is_valid()
-                s.save()
+                if s.is_valid():
+                    s.save()
+                else:
+                    s.errors
 
 
-            return Response({'message': maped_data['Description']})
+            return Response(maped_data)
         
         else:
             return Response(
@@ -131,13 +178,14 @@ class BillInquiryApi(APIView):
 
 class DeleteDevice(generics.DestroyAPIView):
     """
-        Delete inquiry 
+        Delete Device 
     """
     serializer_class = serializers.DeviceSerializer
     queryset = Device.objects.all()
 
     def get_object(self, queryset=None):
-        device = Device.objects.get(pk=self.request.query_params['id'])
+        # device = Device.objects.get(pk=self.request.query_params['id'])
+        device = Device.objects.get(pk=self.kwargs['pk'])
         return device
 
     def get(self, request, *args, **kwargs):
@@ -148,13 +196,14 @@ class DeleteDevice(generics.DestroyAPIView):
 
 class UpdateDevice(generics.UpdateAPIView):
     """
-        Update the inquiry 
+        Update the Device 
     """
     serializer_class = serializers.DeviceSerializer
     queryset = Device.objects.all()
 
     def get_object(self, queryset=None):
-        device = Device.objects.get(pk=self.request.query_params['id'])
+        # device = Device.objects.get(pk=self.request.query_params['id'])
+        device = Device.objects.get(pk=self.kwargs['pk'])
         return device
 
     def post(self, request, *args, **kwargs):
@@ -168,7 +217,7 @@ class UpdateDevice(generics.UpdateAPIView):
 
 class CreateDevice(generics.CreateAPIView):
     """
-        Create the inquiry 
+        Create the Device 
     """
     serializer_class = serializers.DeviceSerializer
 
@@ -182,11 +231,11 @@ class CreateDevice(generics.CreateAPIView):
 
 class ListDevice(generics.ListAPIView):
     """
-        Retrieve inquiry
+        Retrieve Devices
     """
     queryset = Device.objects.all()
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['owner', 'device_type', 'is_active']
+    filterset_fields = ['owner', 'device_type', 'is_active',]
     ordering_fields = ['owner', 'device_type', 'is_active']
     serializer_class = serializers.DeviceSerializer
     pagination_class = LargeResultsSetPagination
@@ -194,5 +243,16 @@ class ListDevice(generics.ListAPIView):
     page_size_query_param = 'page_size'
     
 
-
+class ListInquiry(generics.ListAPIView):
+    """
+        Retrieve inquiries
+    """
+    queryset = Inquiry.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['device',]
+    ordering_fields = ['device',]
+    serializer_class = serializers.BillInquirySerializer
+    pagination_class = LargeResultsSetPagination
+    page_size = 2
+    page_size_query_param = 'page_size'
 

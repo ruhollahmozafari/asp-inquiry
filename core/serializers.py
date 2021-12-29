@@ -29,3 +29,7 @@ class BillInquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = Inquiry
         fields = '__all__'
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return { k: v for k, v in data.items() if v is not None }
