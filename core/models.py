@@ -43,8 +43,7 @@ class Device(models.Model):
         max_length=250, 
         blank=True, null=True
     )
-    last_inquiry = models.DateField(
-        auto_now_add=True, 
+    last_inquiry = models.DateTimeField( 
         blank=True, null=True
     )
     device_type = models.CharField(

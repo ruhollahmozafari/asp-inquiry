@@ -9,7 +9,7 @@ import json
 import requests
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import pagination
-
+from django.utils import timezone
 
 class LargeResultsSetPagination(pagination.PageNumberPagination):
     """
@@ -156,13 +156,14 @@ class BillInquiryApi(APIView):
                 data=data,
             )
             responsed_data = response.json()
-            print(responsed_data)
             maped_data = change_mapping_data(device, responsed_data)
 
             if maped_data['Code'] == 'G00000':
                 s = serializers.BillInquirySerializer(data=maped_data)
                 if s.is_valid():
                     s.save()
+                    device.last_inquiry = timezone.now()
+                    device.save()
                 else:
                     s.errors
 
