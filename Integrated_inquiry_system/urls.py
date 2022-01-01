@@ -23,8 +23,8 @@ schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include('property.urls')),
-    path('', schema_view)
+    path('property/', include('property.urls')),
+    path('swagger/', schema_view)
 ]
 urlpatterns += staticfiles_urlpatterns()
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
