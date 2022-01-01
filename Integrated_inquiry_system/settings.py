@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_swagger',
 
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+
     'property',
 ]
 
@@ -139,4 +142,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 1,
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+}
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    },
 }

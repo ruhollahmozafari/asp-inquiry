@@ -90,6 +90,17 @@ class Device(models.Model):
         verbose_name = 'Device'
         verbose_name_plural = 'Devices'
 
+    @property
+    def owner_indexing(self):
+        return self.owner.name
+
+    @property
+    def device_type_indexing(self):
+        return self.device_type
+
+
+
+
 
 class Inquiry(models.Model):
     device = models.ForeignKey(
@@ -279,6 +290,16 @@ class Inquiry(models.Model):
         ordering = ['id']
         verbose_name = 'Inquiry'
         verbose_name_plural = 'Inquiries'
+
+    @property
+    def device_indexing(self):
+        if self.device is not None:
+            return self.device.name
+
+    @property
+    def PaymentID_indexing(self):
+        return self.PaymentID
+
 
     def __str__(self):
         return self.device.name
