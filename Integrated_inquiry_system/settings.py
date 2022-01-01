@@ -27,7 +27,10 @@ SECRET_KEY = 'django-insecure-0#cm^rx9vu3nx$%v6^pigbbb%bo6#%7tr_zhk#=ve-a$vz6_#u
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+# CORS_ALLOWED_ORIGINS = [
+#     # 'http://localhost:8000',
+    
+# ]
 
 # Application definition
 
@@ -39,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'corsheaders',
+
     'django_filters',
     'rest_framework_swagger',
 
@@ -49,6 +54,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -144,7 +151,9 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'localhost:9200'
-    },
+    "default": {
+        "hosts": "http://192.168.100.31:9200/",
+        "timeout": 60, # Custom timeout
+        },
 }
+CORS_ALLOW_ALL_ORIGINS=True

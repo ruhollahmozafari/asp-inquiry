@@ -19,6 +19,17 @@ class LargeResultsSetPagination(pagination.PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 10000
 
+    def get_paginated_response(self, data):
+        return Response({
+            # 'links': {
+            #    'next': self.get_next_link(),
+            #    'previous': self.get_previous_link()
+            # },
+            'count': self.page.paginator.count,
+            'total_pages': self.page.paginator.num_pages,
+            'results': data
+        })
+
 
 api_link = {
     'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
@@ -257,3 +268,79 @@ class ListInquiry(generics.ListAPIView):
     page_size = 2
     page_size_query_param = 'page_size'
 
+
+
+
+
+
+from django_elasticsearch_dsl_drf.constants import (
+    LOOKUP_FILTER_TERMS,
+    LOOKUP_FILTER_RANGE,
+    LOOKUP_FILTER_PREFIX,
+    LOOKUP_FILTER_WILDCARD,
+    LOOKUP_QUERY_IN,
+    LOOKUP_QUERY_GT,
+    LOOKUP_QUERY_GTE,
+    LOOKUP_QUERY_LT,
+    LOOKUP_QUERY_LTE,
+    LOOKUP_QUERY_EXCLUDE,
+)
+from django_elasticsearch_dsl_drf.filter_backends import (
+    FilteringFilterBackend,
+    IdsFilterBackend,
+    OrderingFilterBackend,
+    DefaultOrderingFilterBackend,
+    SearchFilterBackend,
+)
+from django_elasticsearch_dsl_drf.viewsets import BaseDocumentViewSet
+from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
+
+from .documents import DeviceDocument, InquiryDocument
+from .serializers import DeviceDocumentSerializer, InquiryDocumentSerializer
+
+
+class DeviceDocumentView(BaseDocumentViewSet):
+    """The BookDocument view."""
+
+    document = DeviceDocument
+    serializer_class = DeviceDocumentSerializer
+    pagination_class = LargeResultsSetPagination
+    lookup_field = 'id'
+    filter_backends = [
+        FilteringFilterBackend,
+        IdsFilterBackend,
+        OrderingFilterBackend,
+        DefaultOrderingFilterBackend,
+        SearchFilterBackend,
+    ]
+    # Define search fields
+    search_fields = (
+        
+        'device_type',
+        'MobileNumber',
+        'FixedLineNumber',
+        'BarCode',
+        'ElectricityBillID',
+        'ParticipateCode',
+        'GasBillID',
+        'WaterBillID',
+    )
+    # Define filter fields
+    filter_fields = {
+        # "properties": {
+        "device_type": { 
+        "type":     "text",
+        "fielddata": True
+        }
+        # }
+    }
+        
+        
+
+    # Define ordering fields
+    ordering_fields = {
+        
+        'device_type': 'device_type',
+    }
+    # Specify default ordering
+    ordering = ( 'device_type', )
