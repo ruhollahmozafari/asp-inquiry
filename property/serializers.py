@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Inquiry ,Device
+from .models import Inquiry ,Device
 
 # class BillInquirySerializer(serializers.ModelSerializer):
 #     device_id = serializers.IntegerField()
