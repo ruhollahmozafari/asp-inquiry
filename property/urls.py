@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from . import views
 
-app_name = 'core'
+app_name = 'propety'
 
 urlpatterns = [
 
@@ -14,3 +14,4 @@ urlpatterns = [
     path('list-inquiry/', views.ListInquiry.as_view(), name='list_inquiry'),
 
 ]
+

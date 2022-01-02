@@ -19,12 +19,23 @@ from rest_framework_swagger.views import get_swagger_view
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+from django.conf.urls import url, include
+from rest_framework.routers import DefaultRouter
+from property.views import DeviceDocumentView
+router = DefaultRouter()
+devices = router.register(r'devices',
+                        DeviceDocumentView,
+                        basename='devicedocument')
+
+
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('property/', include('property.urls')),
-    path('swagger/', schema_view)
+    path('swagger/', schema_view),
+
+    url(r'^', include(router.urls)),
 ]
 urlpatterns += staticfiles_urlpatterns()
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

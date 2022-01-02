@@ -37,6 +37,7 @@ class Device(models.Model):
         blank=True, null=True
     )
     is_active = models.BooleanField(
+        default=True,
         blank=True, null=True
     )
     description = models.CharField(
