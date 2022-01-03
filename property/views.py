@@ -31,111 +31,6 @@ class LargeResultsSetPagination(pagination.PageNumberPagination):
         })
 
 
-api_link = {
-    'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
-    'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
-    'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
-    'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry',
-    'car':'https://core.inquiry.ayantech.ir/webservices/core.svc/TrafficFinesInquiry',
-    'ElectricityBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/ElectricityBillInquiry',
-    'GasBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/GasBillInquiry',
-    'WaterBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/WaterBillInquiry',
-}
-
-def get_data(device):
-    """
-        the data( that the client intends to inquiry about ) that api received varies according to the device
-        so this function give usthe address based on the advice
-    """
-    device_type = device.device_type
-
-    if device_type == 'Irancell' or device_type == 'Hamrahavval' or device_type == 'Rightel':
-        return json.dumps({
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                    # "Token": "DB5529C5350449C8A71A87ACD6259172"
-                },
-                "Parameters": {
-                    "MobileNumber": device.MobileNumber
-                }
-            })
-
-    elif device_type == 'FixedLine':
-        return json.dumps({
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                },
-                "Parameters": {
-                    "FixedLineNumber": device.FixedLineNumber
-                }
-            })
-
-    elif device_type == 'car':
-        return json.dumps({
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                },
-                "Parameters": {
-                    "BarCode": device.BarCode
-                }
-            })
-    
-    elif device_type == 'ElectricityBill':
-        return json.dumps({
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                },
-                "Parameters": {
-                    "ElectricityBillID": device.ElectricityBillID
-                }
-            })
-    
-    elif device_type == 'GasBill':
-        return json.dumps({
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                },
-                "Parameters": {
-                    "ParticipateCode": device.ParticipateCode,
-                    "GasBillID": device.GasBillID
-                }
-            })
-    
-    elif device_type == 'WaterBill':
-        return json.dumps({
-                "Identity": {
-                    "Token": "3074B060C52E440BABC2BAAA4FF9A8E5"
-                },
-                "Parameters": {
-                    "WaterBillID": device.WaterBillID
-                }
-            })
-
-def change_mapping_data(device, data_dict):
-    data_dict.update(data_dict.pop('Description', {}))
-    data_dict.update(data_dict.pop('Status', {}))
-    data_dict['device'] = device.id
-    if not data_dict['Parameters'] == None:
-        data_dict.update(data_dict.pop('Parameters', {}))
-        if 'FinalTerm' in data_dict.keys():
-            if not data_dict['FinalTerm'] == None:
-                FinalTerm_data = {"FinalTerm_" + str(key): val for key, val in data_dict['FinalTerm'].items()}
-                data_dict.pop('FinalTerm')
-                data_dict.update(FinalTerm_data)
-            else:
-                data_dict.pop('FinalTerm')
-        if 'MidTerm' in data_dict.keys():
-            if not data_dict['MidTerm'] == None:
-                MidTerm_data = {"MidTerm_" + str(key): val for key, val in data_dict['MidTerm'].items()}
-                data_dict.pop('MidTerm')
-                data_dict.update(MidTerm_data)
-            else:
-                data_dict.pop('MidTerm')
-            
-    else:
-        data_dict.pop('Parameters')
-    
-    return data_dict
 
 
 class BillInquiryApi(APIView):
@@ -145,47 +40,147 @@ class BillInquiryApi(APIView):
 
     serializer_class = serializers.BillInquirySerializer
 
-    def post(self, request, *args, **kwargs):
-        # serializer = self.serializer_class(data=request.data)
-        # serializer = self.serializer_class(data=request.query_params)
-        serializer = self.serializer_class(data=kwargs)
+    TOKEN = "3074B060C52E440BABC2BAAA4FF9A8E5"
+    # TOKEN = "DB5529C5350449C8A71A87ACD6259172"
 
-        if serializer.is_valid():
+    api_link = {
+        'Hamrahavval':'https://core.inquiry.ayantech.ir/webservices/core.svc/MCIMobileBillInquiry',
+        'Irancell':'https://core.inquiry.ayantech.ir/webservices/core.svc/MtnMobileBillInquiry',
+        'Rightel':'https://core.inquiry.ayantech.ir/webservices/core.svc/RightelMobileBillInquiry',
+        'FixedLine':'https://core.inquiry.ayantech.ir/webservices/core.svc/FixedLineBillInquiry',
+        'car':'https://core.inquiry.ayantech.ir/webservices/core.svc/TrafficFinesInquiry',
+        'ElectricityBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/ElectricityBillInquiry',
+        'GasBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/GasBillInquiry',
+        'WaterBill':'https://core.inquiry.ayantech.ir/webservices/core.svc/WaterBillInquiry',
+    }
 
-            header = {
-                'Content-Type':'application/json',
-                'Accept':'application/json',
-                'Connection':'keep-alive',
-                'User-Agent': 'PostmanRuntime/7.28.4',
-                'Accept-Encoding':'gzip, deflate, br'
-            }
-            device = get_object_or_404(Device, pk=int(serializer.data['device']))
-            data = get_data( device )
-            response = requests.post(
-                api_link[device.device_type],
-                headers=header,
-                data=data,
-            )
-            responsed_data = response.json()
-            maped_data = change_mapping_data(device, responsed_data)
 
-            if maped_data['Code'] == 'G00000':
-                s = serializers.BillInquirySerializer(data=maped_data)
-                if s.is_valid():
-                    s.save()
-                    device.last_inquiry = timezone.now()
-                    device.save()
+    def change_mapping_data(self, device, data_dict):
+        data_dict.update(data_dict.pop('Description', {}))
+        data_dict.update(data_dict.pop('Status', {}))
+        data_dict['device'] = device.id
+        if not data_dict['Parameters'] == None:
+            data_dict.update(data_dict.pop('Parameters', {}))
+            if 'FinalTerm' in data_dict.keys():
+                if not data_dict['FinalTerm'] == None:
+                    FinalTerm_data = {"FinalTerm_" + str(key): val for key, val in data_dict['FinalTerm'].items()}
+                    data_dict.pop('FinalTerm')
+                    data_dict.update(FinalTerm_data)
                 else:
-                    s.errors
-
-
-            return Response(maped_data)
-        
+                    data_dict.pop('FinalTerm')
+            if 'MidTerm' in data_dict.keys():
+                if not data_dict['MidTerm'] == None:
+                    MidTerm_data = {"MidTerm_" + str(key): val for key, val in data_dict['MidTerm'].items()}
+                    data_dict.pop('MidTerm')
+                    data_dict.update(MidTerm_data)
+                else:
+                    data_dict.pop('MidTerm')
+                
         else:
-            return Response(
-                serializer.errors,
+            data_dict.pop('Parameters')
+        
+        return data_dict
+    
+    def get_data(self, device):
+        """
+            the data( that the client intends to inquiry about ) that api received varies according to the device
+            so this function give usthe address based on the advice
+        """
+        device_type = device.device_type
 
-                status=status.HTTP_400_BAD_REQUEST,)
+        if device_type == 'Irancell' or device_type == 'Hamrahavval' or device_type == 'Rightel':
+            return json.dumps({
+                    "Identity": {
+                        "Token": self.TOKEN
+                    },
+                    "Parameters": {
+                        "MobileNumber": device.MobileNumber
+                    }
+                })
+
+        elif device_type == 'FixedLine':
+            return json.dumps({
+                    "Identity": {
+                        "Token": self.TOKEN
+                    },
+                    "Parameters": {
+                        "FixedLineNumber": device.FixedLineNumber
+                    }
+                })
+
+        elif device_type == 'car':
+            return json.dumps({
+                    "Identity": {
+                        "Token": self.TOKEN
+                    },
+                    "Parameters": {
+                        "BarCode": device.BarCode
+                    }
+                })
+        
+        elif device_type == 'ElectricityBill':
+            return json.dumps({
+                    "Identity": {
+                        "Token": self.TOKEN
+                    },
+                    "Parameters": {
+                        "ElectricityBillID": device.ElectricityBillID
+                    }
+                })
+        
+        elif device_type == 'GasBill':
+            return json.dumps({
+                    "Identity": {
+                        "Token": self.TOKEN
+                    },
+                    "Parameters": {
+                        "ParticipateCode": device.ParticipateCode,
+                        "GasBillID": device.GasBillID
+                    }
+                })
+        
+        elif device_type == 'WaterBill':
+            return json.dumps({
+                    "Identity": {
+                        "Token": self.TOKEN
+                    },
+                    "Parameters": {
+                        "WaterBillID": device.WaterBillID
+                    }
+                })
+
+
+    def post(self, request, *args, **kwargs):
+        header = {
+            'Content-Type':'application/json',
+            'Accept':'application/json',
+            'Connection':'keep-alive',
+            'User-Agent': 'PostmanRuntime/7.28.4',
+            'Accept-Encoding':'gzip, deflate, br'
+        }
+        device = get_object_or_404(Device, pk=int(self.kwargs['device']))
+        data = self.get_data( device )
+        response = requests.post(
+            self.api_link[device.device_type],
+            headers=header,
+            data=data,
+        )
+        responsed_data = response.json()
+        maped_data = self.change_mapping_data(device, responsed_data)
+
+        if maped_data['Code'] == 'G00000':
+            s = serializers.BillInquirySerializer(data=maped_data)
+            if s.is_valid():
+                s.save()
+                device.last_inquiry = timezone.now()
+                device.save()
+            else:
+                s.errors
+
+
+        return Response(maped_data)
+    
+
 
 
 class DeleteDevice(generics.DestroyAPIView):
@@ -200,10 +195,11 @@ class DeleteDevice(generics.DestroyAPIView):
         device = Device.objects.get(pk=self.kwargs['pk'])
         return device
 
-    def get(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         device = self.get_object()
-        device.delete()
-        return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
+        device.is_active = False
+        device.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateDevice(generics.UpdateAPIView):
