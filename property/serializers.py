@@ -57,7 +57,7 @@ import json
 from rest_framework import serializers
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
-from .documents import DeviceDocument, InquiryDocument
+from .documents import DeviceDocument, InquiryDocument, UserProfileDocument
 class DeviceDocumentSerializer(DocumentSerializer):
     """Serializer for the Book document."""
 
@@ -98,3 +98,10 @@ class InquiryDocumentSerializer(DocumentSerializer):
             'PaymentID',
             'Description',
         )
+
+class UserProfileDocumentSerializer(DocumentSerializer):
+
+    class Meta:
+        model = User
+        fields = "__all__"
+        document = UserProfileDocument

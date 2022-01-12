@@ -1,4 +1,5 @@
 from django.urls import path, include
+from six import viewitems
 
 from . import views
 
@@ -12,6 +13,7 @@ urlpatterns = [
     path('create-device-inquiry/', views.CreateDevice.as_view(), name='create_device_inquiry'),
     path('list-device/', views.ListDevice.as_view(), name='list_device'),
     path('list-inquiry/', views.ListInquiry.as_view(), name='list_inquiry'),
+    path('user_elastic_search/', views.UserAdvanceSearch.as_view(), ),
 
 ]
 

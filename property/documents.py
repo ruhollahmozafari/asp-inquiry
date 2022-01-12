@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl import Document
 from django_elasticsearch_dsl.registries import registry
-from .models import Inquiry, Device
+from .models import Inquiry, Device, User
 
 
 
@@ -46,3 +46,19 @@ class InquiryDocument(Document):
             'Description',
          ]
 
+
+@registry.register_document
+class UserProfileDocument(Document):
+    class Index:
+        name = 'user_profiles'
+    class Django:
+        model = User
+
+        fields = [
+            'id',
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+
+        ]

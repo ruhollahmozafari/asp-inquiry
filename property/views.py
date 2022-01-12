@@ -1,3 +1,5 @@
+from elasticsearch_dsl import query
+from elasticsearch_dsl.query import Fuzzy
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -16,7 +18,7 @@ class LargeResultsSetPagination(pagination.PageNumberPagination):
         pagination class
     """
     page_size = 2
-    page_size_query_param = 'item_per_page'
+    page_size_query_param = 'items_per_page'
     max_page_size = 10000
 
     def get_paginated_response(self, data):
@@ -146,7 +148,7 @@ def change_mapping_data(device, data_dict):
     return data_dict
 
 
-class BillInquiryApi(APIView):#TODO write a permission only for role 2, #TODO Put mapped data , header and get_data this view and a method
+class BillInquiryApi(APIView):
     """
         create new inquiry for one of the client device
     """
@@ -181,7 +183,7 @@ class BillInquiryApi(APIView):#TODO write a permission only for role 2, #TODO Pu
         return Response(maped_data)
 
 
-class DeleteDevice(generics.DestroyAPIView): # TODO , we dont delete a device just change the active field to False | BTW I think this view does not work
+class DeleteDevice(generics.DestroyAPIView): 
     """
         Delete Device 
     """
@@ -270,11 +272,6 @@ class ListInquiry(generics.ListAPIView):
 
 
 
-########################### why why why ##################################3
-
-#TODO Why there are two code for elastic for docouments 
-
-
 from django_elasticsearch_dsl_drf.constants import (
     LOOKUP_FILTER_TERMS,
     LOOKUP_FILTER_RANGE,
@@ -297,8 +294,9 @@ from django_elasticsearch_dsl_drf.filter_backends import (
 from django_elasticsearch_dsl_drf.viewsets import BaseDocumentViewSet
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 
-from .documents import DeviceDocument, InquiryDocument
+from .documents import DeviceDocument, InquiryDocument, UserProfileDocument
 from .serializers import DeviceDocumentSerializer, InquiryDocumentSerializer
+from elasticsearch_dsl import Q as Qelastic
 
 
 class DeviceDocumentView(BaseDocumentViewSet):
@@ -346,3 +344,18 @@ class DeviceDocumentView(BaseDocumentViewSet):
     }
     # Specify default ordering
     ordering = ( 'device_type', )
+
+class UserAdvanceSearch(APIView):
+   
+    def get(self, request):
+
+        q = Qelastic('multi_match', query = request.query_params.get('search'), 
+        fields=['username' ,'email'], fuzziness = 'AUTO')
+ 
+        search = UserProfileDocument.search().query(q)[:10000]
+        sr = search.execute()
+        print(f'this is re elastic search result {q} \n\n\n\ '*12)
+        serializer = serializers.UserProfileDocumentSerializer(search, many=True)
+        return Response({ 'total': len(sr),  'users':serializers.UserProfileDocumentSerializer(sr, many = True,).data}, status= 200)
+
+

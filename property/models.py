@@ -2,9 +2,10 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-
+import factory
+from factory.django import DjangoModelFactory
 User = get_user_model()
-
+import random 
 
 DEVICE_TYPE = [
     ('FixedLine','FixedLine'),
@@ -304,4 +305,6 @@ class Inquiry(models.Model):
 
     def __str__(self):
         return self.device.name
+
+
 
