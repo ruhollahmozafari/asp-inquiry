@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Inquiry ,Device
+from ..models.device_models import Inquiry ,Device
 
 from django.contrib.auth import get_user_model
 
@@ -17,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+<<<<<<< HEAD:property/serializers.py
 class DeviceSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = Device
@@ -27,6 +28,10 @@ class DeviceSerializerCreate(serializers.ModelSerializer):
 
 
 class DeviceSerializer(serializers.ModelSerializer):
+=======
+
+class ShowDeviceSerializer(serializers.ModelSerializer):
+>>>>>>> 21219e6706f8604b7f381107d750418420b32c3d:property/serializers/device_serializers.py
     owner = UserSerializer()
     created_by = UserSerializer()
 
@@ -34,7 +39,22 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = '__all__'
         depth = 2
-        # fields = ['Number', 'Operator','TypeLine','owner', 'name', 'last_inquiry', 'device_type', 'description']
+        # fields = ['name','is_active','description','last_inquiry','device_type','MobileNumber','BarCode'
+        # ,'FixedLineNumber','ElectricityBillID','ParticipateCode','GasBillID','WaterBillID',]
+
+
+class CreateDeviceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Device
+        fields = '__all__'
+
+class UpdateDeviceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Device
+        # fields = '__all__'
+        exclude = ('owner','created_by' )
 
 
         
@@ -57,7 +77,11 @@ import json
 from rest_framework import serializers
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
+<<<<<<< HEAD:property/serializers.py
 from .documents import DeviceDocument, InquiryDocument, UserProfileDocument
+=======
+from ..documents import DeviceDocument, InquiryDocument
+>>>>>>> 21219e6706f8604b7f381107d750418420b32c3d:property/serializers/device_serializers.py
 class DeviceDocumentSerializer(DocumentSerializer):
     """Serializer for the Book document."""
 

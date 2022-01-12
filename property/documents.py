@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl import Document
 from django_elasticsearch_dsl.registries import registry
-from .models import Inquiry, Device, User
+from .models.device_models import Inquiry, Device
 
 
 

@@ -21,7 +21,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
-from property.views import DeviceDocumentView
+from property.views.device_views import DeviceDocumentView
 router = DefaultRouter()
 devices = router.register(r'devices',
                         DeviceDocumentView,

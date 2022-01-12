@@ -136,6 +136,15 @@ class Inquiry(models.Model):
         max_length=50,
         blank=True, null=True
     )
+
+    is_paid = models.BooleanField(
+        default=False,
+        blank=True, null=True
+    )
+    payment_tracking_code = models.CharField(
+        max_length=150,
+        blank=True, null=True
+    )
     # Phone
     PreviousDate = models.CharField(
         max_length=50,
@@ -306,5 +315,17 @@ class Inquiry(models.Model):
     def __str__(self):
         return self.device.name
 
+<<<<<<< HEAD:property/models.py
 
 
+=======
+    def get_total_cost(self):
+        if self.TotalAmount:
+            return self.TotalAmount
+        if self.Amount:
+            return self.Amount
+        if self.FinalTerm_Amount:
+            return self.FinalTerm_Amount
+        if self.MidTerm_Amount:
+            return self.MidTerm_Amount
+>>>>>>> 21219e6706f8604b7f381107d750418420b32c3d:property/models/device_models.py
