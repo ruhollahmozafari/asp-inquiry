@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Inquiry, Device
+from .models.device_models import Inquiry, Device
 
 
 # Register your models here.

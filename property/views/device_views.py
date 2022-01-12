@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from . import serializers
-from .models import Inquiry, Device
+from ..serializers import device_serializers as serializers
+from ..models.device_models import Inquiry, Device
 from rest_framework import generics, status
 from rest_framework.views import APIView
 import json
@@ -10,6 +10,10 @@ import requests
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import pagination
 from django.utils import timezone
+
+from ..permissions import CustomePermissions
+
+from rest_framework import status, filters
 
 class LargeResultsSetPagination(pagination.PageNumberPagination):
     """
@@ -32,12 +36,11 @@ class LargeResultsSetPagination(pagination.PageNumberPagination):
 
 
 
-
 class BillInquiryApi(APIView):
     """
         create new inquiry for one of the client device
     """
-
+    # permission_classes = [CustomePermissions]
     serializer_class = serializers.BillInquirySerializer
 
     TOKEN = "3074B060C52E440BABC2BAAA4FF9A8E5"
@@ -187,13 +190,9 @@ class DeleteDevice(generics.DestroyAPIView):
     """
         Delete Device 
     """
-    serializer_class = serializers.DeviceSerializer
+    serializer_class = serializers.CreateDeviceSerializer
     queryset = Device.objects.all()
-
-    def get_object(self, queryset=None):
-        # device = Device.objects.get(pk=self.request.query_params['id'])
-        device = Device.objects.get(pk=self.kwargs['pk'])
-        return device
+    lookup_field = 'pk'
 
     def destroy(self, request, *args, **kwargs):
         device = self.get_object()
@@ -206,28 +205,18 @@ class UpdateDevice(generics.UpdateAPIView):
     """
         Update the Device 
     """
-    serializer_class = serializers.DeviceSerializer
+    serializer_class = serializers.UpdateDeviceSerializer
     queryset = Device.objects.all()
+    lookup_field = 'pk'
 
-    def get_object(self, queryset=None):
-        # device = Device.objects.get(pk=self.request.query_params['id'])
-        device = Device.objects.get(pk=self.kwargs['pk'])
-        return device
 
-    def post(self, request, *args, **kwargs):
-        device = self.get_object()
-        serializer = serializers.DeviceSerializer(device, data=request.data, partial=True)
-        if serializer.is_valid():
-            device = serializer.save()
-            return Response(serializers.DeviceSerializer(device).data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateDevice(generics.CreateAPIView):
     """
         Create the Device 
     """
-    serializer_class = serializers.DeviceSerializer
+    serializer_class = serializers.CreateDeviceSerializer
 
     def create(self,request, *args, **kwargs):
         self.request.data['created_by'] = 1
@@ -242,14 +231,16 @@ class ListDevice(generics.ListAPIView):
         Retrieve Devices
     """
     queryset = Device.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['owner', 'device_type', 'is_active',]
-    ordering_fields = ['owner', 'device_type', 'is_active']
-    serializer_class = serializers.DeviceSerializer
+    filter_backends = [filters.SearchFilter]
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['owner', 'device_type', 'is_active']
+    # ordering_fields = ['owner', 'device_type', 'is_active']
+    search_fields = ['owner__last_name', 'owner__first_name',]
+    serializer_class = serializers.ShowDeviceSerializer
     pagination_class = LargeResultsSetPagination
     page_size = 2
     page_size_query_param = 'page_size'
-    
+
 
 class ListInquiry(generics.ListAPIView):
     """
@@ -291,8 +282,8 @@ from django_elasticsearch_dsl_drf.filter_backends import (
 from django_elasticsearch_dsl_drf.viewsets import BaseDocumentViewSet
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 
-from .documents import DeviceDocument, InquiryDocument
-from .serializers import DeviceDocumentSerializer, InquiryDocumentSerializer
+from ..documents import DeviceDocument, InquiryDocument
+from ..serializers.device_serializers import DeviceDocumentSerializer, InquiryDocumentSerializer
 
 
 class DeviceDocumentView(BaseDocumentViewSet):

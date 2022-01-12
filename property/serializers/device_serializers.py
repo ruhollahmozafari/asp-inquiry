@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Inquiry ,Device
+from ..models.device_models import Inquiry ,Device
 
 from django.contrib.auth import get_user_model
 
@@ -17,7 +17,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-class DeviceSerializer(serializers.ModelSerializer):
+
+class ShowDeviceSerializer(serializers.ModelSerializer):
     owner = UserSerializer()
     created_by = UserSerializer()
 
@@ -25,7 +26,22 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = '__all__'
         depth = 2
-        # fields = ['Number', 'Operator','TypeLine','owner', 'name', 'last_inquiry', 'device_type', 'description']
+        # fields = ['name','is_active','description','last_inquiry','device_type','MobileNumber','BarCode'
+        # ,'FixedLineNumber','ElectricityBillID','ParticipateCode','GasBillID','WaterBillID',]
+
+
+class CreateDeviceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Device
+        fields = '__all__'
+
+class UpdateDeviceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Device
+        # fields = '__all__'
+        exclude = ('owner','created_by' )
 
 
         
@@ -48,7 +64,7 @@ import json
 from rest_framework import serializers
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
-from .documents import DeviceDocument, InquiryDocument
+from ..documents import DeviceDocument, InquiryDocument
 class DeviceDocumentSerializer(DocumentSerializer):
     """Serializer for the Book document."""
 
