@@ -2,9 +2,10 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-
+import factory
+from factory.django import DjangoModelFactory
 User = get_user_model()
-
+import random 
 
 DEVICE_TYPE = [
     ('FixedLine','FixedLine'),
@@ -314,6 +315,10 @@ class Inquiry(models.Model):
     def __str__(self):
         return self.device.name
 
+<<<<<<< HEAD:property/models.py
+
+
+=======
     def get_total_cost(self):
         if self.TotalAmount:
             return self.TotalAmount
@@ -323,3 +328,4 @@ class Inquiry(models.Model):
             return self.FinalTerm_Amount
         if self.MidTerm_Amount:
             return self.MidTerm_Amount
+>>>>>>> 21219e6706f8604b7f381107d750418420b32c3d:property/models/device_models.py

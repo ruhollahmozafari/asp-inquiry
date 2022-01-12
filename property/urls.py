@@ -1,4 +1,5 @@
 from django.urls import path, include
+from six import viewitems
 
 from .views import device_views ,payment_views
 
@@ -18,3 +19,4 @@ urlpatterns = [
     path('payment/<int:inquiry_id>', payment_views.Payment.as_view(), name='payment'),
 
 ]
+
