@@ -26,7 +26,8 @@ def go_to_gateway_view(request, amount, inquiry_id, phone_number=None):
 
     factory = bankfactories.BankFactory()
     try:
-        bank = factory.auto_create()  # or factory.create(bank_models.BankType.BMI) or set identifier
+        # bank = factory.auto_create()  # or factory.create(bank_models.BankType.BMI) or set identifier
+        bank = factory.create(bank_models.BankType.IDPAY)
         bank.set_request(request)
         bank.set_amount(amount)
         bank.set_inquiry_id(str(inquiry_id))
@@ -81,21 +82,7 @@ def callback_gateway_view(request):
 
 
 
-# class Payment(APIView):
-#     """
-#         payment inquiry
-#     """
-
-#     def post(self, request, *args, **kwargs):
-#         bill = get_object_or_404(Inquiry, pk=int(self.kwargs['inquiry_id']))
-#         # response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ,request.user.phone_number) 
-#         response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO
-#         if response_payment == 200:
-#             return Response(status=status.HTTP_200_OK)
-#         else:
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
-
-class Payment(View):
+class Payment(APIView):
     """
         payment inquiry
     """
@@ -103,4 +90,18 @@ class Payment(View):
     def post(self, request, *args, **kwargs):
         bill = get_object_or_404(Inquiry, pk=int(self.kwargs['inquiry_id']))
         # response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ,request.user.phone_number) 
-        return go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO
+        response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO
+        if response_payment == 200:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# class Payment(View):
+#     """
+#         payment inquiry
+#     """
+
+#     def get(self, request, *args, **kwargs):
+#         bill = get_object_or_404(Inquiry, pk=int(self.kwargs['inquiry_id']))
+#         # response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ,request.user.phone_number) 
+#         return go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO

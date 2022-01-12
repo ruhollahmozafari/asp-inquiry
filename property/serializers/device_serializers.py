@@ -17,21 +17,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-<<<<<<< HEAD:property/serializers.py
+
 class DeviceSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = '__all__'
         depth = 2
-       
 
-
-
-class DeviceSerializer(serializers.ModelSerializer):
-=======
 
 class ShowDeviceSerializer(serializers.ModelSerializer):
->>>>>>> 21219e6706f8604b7f381107d750418420b32c3d:property/serializers/device_serializers.py
     owner = UserSerializer()
     created_by = UserSerializer()
 
@@ -77,11 +71,8 @@ import json
 from rest_framework import serializers
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
-<<<<<<< HEAD:property/serializers.py
-from .documents import DeviceDocument, InquiryDocument, UserProfileDocument
-=======
 from ..documents import DeviceDocument, InquiryDocument
->>>>>>> 21219e6706f8604b7f381107d750418420b32c3d:property/serializers/device_serializers.py
+
 class DeviceDocumentSerializer(DocumentSerializer):
     """Serializer for the Book document."""
 
@@ -123,9 +114,9 @@ class InquiryDocumentSerializer(DocumentSerializer):
             'Description',
         )
 
-class UserProfileDocumentSerializer(DocumentSerializer):
+# class UserProfileDocumentSerializer(DocumentSerializer):
 
-    class Meta:
-        model = User
-        fields = "__all__"
-        document = UserProfileDocument
+#     class Meta:
+#         model = User
+#         fields = "__all__"
+#         document = UserProfileDocument

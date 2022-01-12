@@ -176,7 +176,8 @@ AZ_IRANIAN_BANK_GATEWAYS = {
         #     'MERCHANT_CODE': '<YOUR MERCHANT CODE>',
         # },
         'IDPAY': {
-            'MERCHANT_CODE': '6a7f99eb-7c20-4412-a972-6dfb7cd253a4',
+            # 'MERCHANT_CODE': '6a7f99eb-7c20-4412-a972-6dfb7cd253a4',
+            'MERCHANT_CODE': '6a7t95eb-7e20-4412-a972-6dfb7cd253a4',
             'METHOD': 'POST',  # GET or POST
             'X_SANDBOX': 1,  # 0 disable, 1 active
         },

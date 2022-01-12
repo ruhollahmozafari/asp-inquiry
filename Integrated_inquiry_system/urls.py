@@ -36,6 +36,8 @@ urlpatterns = [
     path('swagger/', schema_view),
 
     url(r'^', include(router.urls)),
+
+    # path('', include('azbankgateways.urls')),
 ]
 urlpatterns += staticfiles_urlpatterns()
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
