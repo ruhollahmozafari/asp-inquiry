@@ -12,6 +12,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from django.views import View
 
 from property.models.device_models import Inquiry
 
@@ -80,7 +81,21 @@ def callback_gateway_view(request):
 
 
 
-class Payment(APIView):
+# class Payment(APIView):
+#     """
+#         payment inquiry
+#     """
+
+#     def post(self, request, *args, **kwargs):
+#         bill = get_object_or_404(Inquiry, pk=int(self.kwargs['inquiry_id']))
+#         # response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ,request.user.phone_number) 
+#         response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO
+#         if response_payment == 200:
+#             return Response(status=status.HTTP_200_OK)
+#         else:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class Payment(View):
     """
         payment inquiry
     """
@@ -88,8 +103,4 @@ class Payment(APIView):
     def post(self, request, *args, **kwargs):
         bill = get_object_or_404(Inquiry, pk=int(self.kwargs['inquiry_id']))
         # response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ,request.user.phone_number) 
-        response_payment = go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO
-        if response_payment == 200:
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return go_to_gateway_view(request, bill.get_total_cost() ,Inquiry.id ) #TODO
