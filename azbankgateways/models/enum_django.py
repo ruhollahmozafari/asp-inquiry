@@ -3,7 +3,7 @@ import enum
 from django.utils.functional import Promise
 
 class ChoicesMeta(enum.EnumMeta):
-    """A metaclass for creating a enum choices."""
+    """A metaclass for creating an enum choices."""
 
     def __new__(metacls, classname, bases, classdict):
         labels = []
