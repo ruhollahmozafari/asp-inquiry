@@ -41,14 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'django_extensions',
+    'models2puml',
     'azbankgateways',
     
     'corsheaders',
 
     'django_filters',
     'rest_framework_swagger',
-
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
 
