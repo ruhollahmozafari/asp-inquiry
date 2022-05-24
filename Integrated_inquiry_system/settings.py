@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'azbankgateways',
     
     'corsheaders',
+    'django_extensions',
 
     'django_filters',
     'rest_framework_swagger',
