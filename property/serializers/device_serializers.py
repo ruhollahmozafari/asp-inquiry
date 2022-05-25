@@ -18,11 +18,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DeviceSerializerCreate(serializers.ModelSerializer):
-    class Meta:
-        model = Device
-        fields = '__all__'
-        depth = 2
+# class DeviceSerializerCreate(serializers.ModelSerializer):
+#     class Meta:
+#         model = Device
+#         fields = '__all__'
+#         depth = 2
 
 
 class ShowDeviceSerializer(serializers.ModelSerializer):

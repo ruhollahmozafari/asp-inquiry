@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from . import serializers
-from .models import Inquiry, Device
+from .models.device_models import Inquiry, Device
 from rest_framework import generics, status
 from rest_framework.views import APIView
 import json
@@ -12,6 +12,7 @@ import requests
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import pagination
 from django.utils import timezone
+from property.serializers.device_serializers import BillInquirySerializer  , CreateDeviceSerializer , ShowDeviceSerializer ,UpdateDeviceSerializer
 
 class LargeResultsSetPagination(pagination.PageNumberPagination):
     """
@@ -55,7 +56,7 @@ HEADER = {
 def get_data(device):
     """
         the data( that the client intends to inquiry about ) that api received varies according to the device
-        so this function give usthe address based on the advice
+        so this function give us the address based on the advice
     """
     device_type = device.device_type
 
@@ -153,7 +154,7 @@ class BillInquiryApi(APIView):
         create new inquiry for one of the client device
     """
 
-    serializer_class = serializers.BillInquirySerializer
+    serializer_class = BillInquirySerializer
 
     def post(self, request, *args, **kwargs):
         # serializer = self.serializer_class(data=request.data)
@@ -173,7 +174,7 @@ class BillInquiryApi(APIView):
         maped_data = change_mapping_data(device, responsed_data)
 
         if maped_data['Code'] == 'G00000': # if request was successful
-            s = serializers.BillInquirySerializer(data=maped_data)
+            s = BillInquirySerializer(data=maped_data)
             s.is_valid(raise_exception= True)
             s.save()
             device.last_inquiry = timezone.now()
@@ -183,29 +184,29 @@ class BillInquiryApi(APIView):
         return Response(maped_data)
 
 
-class DeleteDevice(generics.DestroyAPIView): 
-    """
-        Delete Device 
-    """
-    serializer_class = serializers.DeviceSerializer
-    queryset = Device.objects.all()
+# class DeleteDevice(generics.DestroyAPIView): 
+#     """
+#         Delete Device 
+#     """
+#     serializer_class = CreateDeviceSerializer
+#     queryset = Device.objects.all()
 
-    def get_object(self, queryset=None):
-        # device = Device.objects.get(pk=self.request.query_params['id'])
-        device = Device.objects.get(pk=self.kwargs['pk'])
-        return device
+#     def get_object(self, queryset=None):
+#         # device = Device.objects.get(pk=self.request.query_params['id'])
+#         device = Device.objects.get(pk=self.kwargs['pk'])
+#         return device
 
-    def get(self, request, *args, **kwargs):
-        device = self.get_object()
-        device.delete()
-        return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
+#     def get(self, request, *args, **kwargs):
+#         device = self.get_object()
+#         device.delete()
+#         return Response("Inquiry deleted", status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateDevice(generics.UpdateAPIView):
     """
         Update the Device 
     """
-    serializer_class = serializers.DeviceSerializerCreate
+    serializer_class = UpdateDeviceSerializer
     queryset = Device.objects.all()
     lookup_field = 'pk' # TODO , do this instead of writing a get_object method
 
@@ -233,7 +234,7 @@ class CreateDevice(generics.CreateAPIView):
     """
         Create the Device 
     """
-    serializer_class = serializers.DeviceSerializerCreate
+    serializer_class = CreateDeviceSerializer
 
     def create(self,request, *args, **kwargs): # NICE
         self.request.data['created_by'] = 1 #TODO change it to rquest.user.id later
@@ -251,7 +252,7 @@ class ListDevice(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['owner', 'device_type', 'is_active',] # TODO work on filters to have filters over fk objects for instances
     ordering_fields = ['owner', 'device_type', 'is_active']
-    serializer_class = serializers.DeviceSerializer
+    serializer_class = ShowDeviceSerializer
     pagination_class = LargeResultsSetPagination
     page_size = 10
     page_size_query_param = 'items_per_page'
@@ -265,7 +266,7 @@ class ListInquiry(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['device',]
     ordering_fields = ['device',]
-    serializer_class = serializers.BillInquirySerializer
+    serializer_class = BillInquirySerializer
     pagination_class = LargeResultsSetPagination
     page_size = 2
     page_size_query_param = 'page_size'
