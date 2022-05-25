@@ -63,6 +63,7 @@ class Device(models.Model):
         max_length=50, 
         blank=True, null=True,
     )
+    
     # car
     BarCode = models.CharField(
         max_length=100, 
