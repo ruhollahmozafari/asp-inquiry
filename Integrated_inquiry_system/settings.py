@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'models2puml',
     'azbankgateways',
-    
+    'drf_yasg',
     'corsheaders',
     'django_extensions',
 
